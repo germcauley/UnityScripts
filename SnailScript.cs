@@ -8,14 +8,22 @@ public class snailscript : MonoBehaviour
     private Rigidbody2D myBody;
     private Animator anim;
 
+    public LayerMask playerLayer;
     private bool moveLeft;
-    public Transform down_Collision;
 
+    private bool canMove;
+    private bool stunned;
+
+    public Transform left_Collision, right_Collision, top_Collision, down_Collision;
+    private Vector3 left_Collision_Position, right_Collision_Position;
 
     private void Awake()
     {
         myBody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+
+        left_Collision_Position = left_Collision.position;
+        right_Collision_Position = right_Collision.position;
     }
 
     // Start is called before the first frame update
@@ -30,10 +38,17 @@ public class snailscript : MonoBehaviour
     {
         if (moveLeft){
             myBody.velocity = new Vector2(-moveSpeed, myBody.velocity.y);
+
+            left_Collision.position = left_Collision_Position;
+            right_Collision.position = right_Collision_Position;
+
+
         }
         else
         {
             myBody.velocity = new Vector2(moveSpeed, myBody.velocity.y);
+            left_Collision.position = right_Collision_Position;
+            right_Collision.position = left_Collision_Position;
         }
 
         CheckCollision();
@@ -41,8 +56,61 @@ public class snailscript : MonoBehaviour
 
     void CheckCollision()
     {
+        RaycastHit2D leftHit = Physics2D.Raycast(left_Collision.position, Vector2.left, 0.1f, playerLayer);
+        RaycastHit2D rightHit = Physics2D.Raycast(right_Collision.position, Vector2.right, 0.1f, playerLayer);
+
+        Collider2D topHit = Physics2D.OverlapCircle(top_Collision.position, 0.2f, playerLayer);
+
+        if(topHit != null)
+        {
+            if (topHit.gameObject.tag == MyTags.PLAYER_TAG)
+            {
+                if (!stunned)
+                {
+                    topHit.gameObject.GetComponent<Rigidbody2D>().velocity =
+                        new Vector2(topHit.gameObject.GetComponent<Rigidbody2D>().velocity.x, 7f);
+
+                    canMove = false;
+                    myBody.velocity = new Vector2(0, 0);
+
+                    anim.Play("Stunned");
+                    stunned = true;
+                }
+            }
+        }
+
+        if (leftHit)
+        {
+            if(leftHit.collider.gameObject.tag == MyTags.PLAYER_TAG)
+            {
+                if (!stunned)
+                {
+                    //APPLY DAMAGE TO PLAYER
+                }
+                else
+                {
+                    myBody.velocity = new Vector2(15f, myBody.velocity.y);
+                }
+            }
+        }
+
+        if (rightHit)
+        {
+            if(rightHit.collider.gameObject.tag == MyTags.PLAYER_TAG)
+            {
+                if (!stunned)
+                {
+                    //APPLY DAMAGE TO PLAYER
+                }
+                else
+                {
+                    myBody.velocity = new Vector2(-15f, myBody.velocity.y);
+                }
+            }
+        }
+
         //if collision not detected, do the following
-        if(!Physics2D.Raycast (down_Collision.position, Vector2.down, 0.1f))
+        if (!Physics2D.Raycast (down_Collision.position, Vector2.down, 0.1f))
         {
             ChangeDirection();
         }
@@ -65,4 +133,16 @@ public class snailscript : MonoBehaviour
 
         transform.localScale = tempScale;
     }
+
+    private void OnCollisionEnter2D(Collision2D target)
+    {
+        if(target.gameObject.tag == MyTags.PLAYER_TAG)
+        {
+            anim.Play("Stunned");
+        }
+    }
+
+
+
+
 }//class
