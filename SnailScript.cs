@@ -36,21 +36,24 @@ public class snailscript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (moveLeft){
+        if (canMove)
+        {
+             if (moveLeft){
             myBody.velocity = new Vector2(-moveSpeed, myBody.velocity.y);
 
-            left_Collision.position = left_Collision_Position;
-            right_Collision.position = right_Collision_Position;
+            //left_Collision.position = left_Collision_Position;
+            //right_Collision.position = right_Collision_Position;
 
 
+            }
+            else
+            {
+                myBody.velocity = new Vector2 (moveSpeed, myBody.velocity.y);
+                //left_Collision.position = right_Collision_Position;
+                //right_Collision.position = left_Collision_Position;
+            }
         }
-        else
-        {
-            myBody.velocity = new Vector2(moveSpeed, myBody.velocity.y);
-            left_Collision.position = right_Collision_Position;
-            right_Collision.position = left_Collision_Position;
-        }
-
+       
         CheckCollision();
     }
 
@@ -68,10 +71,10 @@ public class snailscript : MonoBehaviour
                 if (!stunned)
                 {
                     topHit.gameObject.GetComponent<Rigidbody2D>().velocity =
-                        new Vector2(topHit.gameObject.GetComponent<Rigidbody2D>().velocity.x, 7f);
+                        new Vector2 (topHit.gameObject.GetComponent<Rigidbody2D>().velocity.x, 7f);
 
                     canMove = false;
-                    myBody.velocity = new Vector2(0, 0);
+                    myBody.velocity = new Vector2 (0, 0);
 
                     anim.Play("Stunned");
                     stunned = true;
@@ -125,10 +128,14 @@ public class snailscript : MonoBehaviour
         if (moveLeft)//change direction of sprite
         {
             tempScale.x = Mathf.Abs(tempScale.x);
+            left_Collision.position = left_Collision_Position;
+            right_Collision.position = right_Collision_Position;
         }
         else
         {
             tempScale.x = -Mathf.Abs(tempScale.x);
+            left_Collision.position = right_Collision_Position;
+            right_Collision.position = left_Collision_Position;
         }
 
         transform.localScale = tempScale;
