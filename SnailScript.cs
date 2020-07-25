@@ -30,6 +30,7 @@ public class snailscript : MonoBehaviour
     void Start()
     {
         moveLeft = true;
+        canMove = true;
     }
 
    
@@ -39,18 +40,18 @@ public class snailscript : MonoBehaviour
         if (canMove)
         {
              if (moveLeft){
-            myBody.velocity = new Vector2(-moveSpeed, myBody.velocity.y);
+                 myBody.velocity = new Vector2(-moveSpeed, myBody.velocity.y);
 
-            //left_Collision.position = left_Collision_Position;
-            //right_Collision.position = right_Collision_Position;
+                left_Collision.position = left_Collision_Position;
+                right_Collision.position = right_Collision_Position;
 
 
             }
             else
             {
                 myBody.velocity = new Vector2 (moveSpeed, myBody.velocity.y);
-                //left_Collision.position = right_Collision_Position;
-                //right_Collision.position = left_Collision_Position;
+                left_Collision.position = right_Collision_Position;
+                right_Collision.position = left_Collision_Position;
             }
         }
        
@@ -70,8 +71,7 @@ public class snailscript : MonoBehaviour
             {
                 if (!stunned)
                 {
-                    topHit.gameObject.GetComponent<Rigidbody2D>().velocity =
-                        new Vector2 (topHit.gameObject.GetComponent<Rigidbody2D>().velocity.x, 7f);
+                    topHit.gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2 (topHit.gameObject.GetComponent<Rigidbody2D>().velocity.x, 7f);
 
                     canMove = false;
                     myBody.velocity = new Vector2 (0, 0);
@@ -128,28 +128,16 @@ public class snailscript : MonoBehaviour
         if (moveLeft)//change direction of sprite
         {
             tempScale.x = Mathf.Abs(tempScale.x);
-            left_Collision.position = left_Collision_Position;
-            right_Collision.position = right_Collision_Position;
+         
         }
         else
         {
             tempScale.x = -Mathf.Abs(tempScale.x);
-            left_Collision.position = right_Collision_Position;
-            right_Collision.position = left_Collision_Position;
+
         }
 
         transform.localScale = tempScale;
     }
 
-    private void OnCollisionEnter2D(Collision2D target)
-    {
-        if(target.gameObject.tag == MyTags.PLAYER_TAG)
-        {
-            anim.Play("Stunned");
-        }
-    }
-
-
-
-
+   
 }//class
