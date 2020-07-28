@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerShootScript : MonoBehaviour
 {
-    public GameObject FireBullet;
+    public GameObject fireBullet;
 
     private void Start()
     {
@@ -14,15 +14,31 @@ public class PlayerShootScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        ShootBullet();
     }
 
     void ShootBullet()
     {
-        if(Input.GetKey(KeyCode.J))
+        if(Input.GetKeyDown(KeyCode.J))
         {
-            GameObject bullet = Instantiate(FireBullet, transform.position, Quaternion.identity);
+            GameObject bullet = Instantiate(fireBullet, transform.position, Quaternion.identity);
             bullet.GetComponent<FireBullet>().Speed *= transform.localScale.x;
         }
     }
-}
+
+}//class
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
