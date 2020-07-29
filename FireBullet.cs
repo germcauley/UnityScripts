@@ -24,7 +24,7 @@ public class FireBullet : MonoBehaviour
         Move();
     }
 
-    private void Move()
+    void Move()
     {
         Vector3 temp = transform.position;
         temp.x += speed * Time.deltaTime;
