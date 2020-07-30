@@ -20,13 +20,12 @@ public class BirdScript : MonoBehaviour
 
     private float speed = 2.5f;
 
-    private void Awake()
+    void Awake()
     {
         myBody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         originPosition = transform.position;
@@ -36,12 +35,14 @@ public class BirdScript : MonoBehaviour
         movePosition.x -= 6f;
 
         canMove = true;
+
     }
 
     // Update is called once per frame
     void Update()
     {
         MoveTheBird();
+        DropTheEgg();
     }
 
     void MoveTheBird()
@@ -50,20 +51,23 @@ public class BirdScript : MonoBehaviour
         {
             transform.Translate(moveDirection * speed * Time.smoothDeltaTime);
 
-            if(transform.position.x >= originPosition.x)
+            if (transform.position.x >= originPosition.x)
             {
                 moveDirection = Vector3.left;
+
                 ChangeDirection(0.5f);
 
             }
             else if (transform.position.x <= movePosition.x)
             {
                 moveDirection = Vector3.right;
+
                 ChangeDirection(-0.5f);
+
             }
+
         }
     }
-
 
     void ChangeDirection(float direction)
     {
@@ -72,27 +76,44 @@ public class BirdScript : MonoBehaviour
         transform.localScale = tempScale;
     }
 
+    void DropTheEgg()
+    {
+        if (!attacked)
+        {
+            if (Physics2D.Raycast(transform.position, Vector2.down, Mathf.Infinity, playerLayer))
+            {
+                Instantiate(birdEgg, new Vector3(transform.position.x,
+                    transform.position.y - 1f, transform.position.z), Quaternion.identity);
+                attacked = true;
+                anim.Play("BirdFlyAnimation");
+            }
+        }
+    }
 
+    IEnumerator BirdDead()
+    {
+        yield return new WaitForSeconds(3f);
+        gameObject.SetActive(false);
+    }
 
-}//class
+    void OnTriggerEnter2D(Collider2D target)
+    {
+        print("Bullet hit bird!!!");
+        if (target.tag == MyTags.BULLET_TAG)
+        {
+            anim.Play("BirdDeadAnimation");
 
+            GetComponent<BoxCollider2D>().isTrigger = true;
+            myBody.bodyType = RigidbodyType2D.Dynamic;
 
+            canMove = false;
 
+            StartCoroutine(BirdDead());
 
+        }
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+} // class
 
 
 
