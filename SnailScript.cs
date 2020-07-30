@@ -162,5 +162,36 @@ public class snailscript : MonoBehaviour
     }
 
 
-   
+    //SCRIPT FOR BULLETS HIT ENEMIES
+    private void OnTriggerEnter2D(Collider2D target)
+    {
+        if(tag == MyTags.BEETLE_TAG)
+        {
+            anim.Play("Stunned");
+            canMove = false;
+            myBody.velocity = new Vector2(0, 0);
+            StartCoroutine(Dead(0.4f));
+        }
+
+        if(tag == MyTags.SNAIL_TAG)
+        {
+            if (!stunned)
+            {
+                anim.Play("Stunned");
+                stunned = true;
+                canMove = false;
+                myBody.velocity = new Vector2(0, 0);
+            }
+            else
+            {
+                gameObject.SetActive(false);
+            }
+        }
+    }
+
+
+
+
+
+
 }//class
