@@ -2,93 +2,132 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FrogScript : MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
 
+    public float speed = 5f;
+
+    private Rigidbody2D myBody;
     private Animator anim;
 
-    private bool animation_Started;
-    private bool animation_Finished;
 
-    private int jumpedTimes;
-    private bool jumpLeft = true;
+    public Transform groundCheckPosition;
+    public LayerMask groundLayer;
 
-    private string coroutine_Name = "FrogJump";
+    private bool isGrounded;
+    private bool jumped;
 
+    public float jumpPower = 5f;
 
-    private void Awake()
+    void Awake()
     {
+        myBody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        
     }
 
-    //FROG SCRIPT, WILL ALOW ENEMY TO JUMP AND MOVE ACROSS SCREEN USING A PARENT GAMEOBJECT
-    
+
+
+
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(coroutine_Name);
+       
     }
 
     // Update is called once per frame
-    void LateUpdate()
+    void Update()
     {
-        if(animation_Finished && animation_Started)
+        CheckIfGrounded();
+        PlayerJump();
+        if (Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.5f, groundLayer))
         {
-            animation_Started = false;
-
-            transform.parent.position = transform.position;
-            transform.localPosition = Vector3.zero;
+            //print("Collided with groud raycast");
         }
     }
 
 
-    IEnumerator FrogJump()
+     void FixedUpdate()
     {
-        yield return new WaitForSeconds(Random.Range(1f, 4f));
-
-        animation_Started = true;
-        animation_Finished = false;
-
-        jumpedTimes++;
-
-        if (jumpLeft)
-        {
-            anim.Play("FrogJumpLeft");
-        }
-        else
-        {
-            anim.Play("FrogJumpRight");
-        }
-
-        StartCoroutine(coroutine_Name);
-
+        PlayerWalk();  
     }
 
-    void AnimationFinished()
+    void PlayerWalk()
     {
-        animation_Finished = true;
+        float h = Input.GetAxisRaw("Horizontal");
 
-        if (jumpLeft) {
-            anim.Play("FrogIdleLeft");
+        if (h > 0)
+        {
+            myBody.velocity = new Vector2(speed, myBody.velocity.y);
+            ChangeDirection(1);
+
+        } else if (h < 0)
+        {
+            myBody.velocity = new Vector2(-speed, myBody.velocity.y);
+
+            ChangeDirection(-1);
         }
         else
         {
-            anim.Play("FrogIdleRight");
+            myBody.velocity = new Vector2(0F, myBody.velocity.y);
         }
+
+        anim.SetInteger("Speed", Mathf.Abs((int)myBody.velocity.x));
+
         
+    }
 
-        if (jumpedTimes == 3) {
-            jumpedTimes = 0;
+    void ChangeDirection(int direction)
+    {
+        Vector3 tempScale = transform.localScale;
+        tempScale.x = direction;
+        transform.localScale = tempScale;
+    }
 
-            Vector3 tempScale = transform.localScale;
-            tempScale.x *= 1;
-            transform.localScale = tempScale;
 
-            jumpLeft = !jumpLeft;
+   void CheckIfGrounded()
+    {
+        isGrounded = Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.1f, groundLayer);
+
+        if (isGrounded)
+        {
+            if (jumped)
+            {
+                jumped = false;
+
+                anim.SetBool("Jump", false);
+            }
         }
     }
+
+   void PlayerJump()
+    {
+        if (isGrounded)
+        {
+            if (Input.GetKey(KeyCode.Space))
+            {
+                jumped = true;
+                myBody.velocity = new Vector2(myBody.velocity.x, jumpPower);
+
+                anim.SetBool("Jump", true);
+            }
+        }
+    }
+
 
 }//class
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
