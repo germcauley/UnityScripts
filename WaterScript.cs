@@ -18,13 +18,12 @@ public class WaterScript : MonoBehaviour
 
 
 
-    private void OnCollisionEnter2D(Collision2D target)
+    //use trigger as it allows player to fall though
+    private void OnTriggerEnter2D(Collider2D target)
     {
         if (target.gameObject.tag == MyTags.PLAYER_TAG)
         {
             print("Water death");
         }
-
-
     }
 }
