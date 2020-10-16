@@ -30,8 +30,9 @@ public class breakBlockScript : MonoBehaviour
                 if (topHit.gameObject.tag == MyTags.PLAYER_TAG)
                 {
                     print("BREAK BLOCK!!!");
-                    gameObject.transform.position = new Vector2(transform.position.x + 1,
-                    transform.position.y + 1);
+                    Destroy(gameObject);
+                    //gameObject.transform.position = new Vector2(transform.position.x + 1,
+                    //transform.position.y + 1);
                 }
             }
 
