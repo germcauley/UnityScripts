@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -17,7 +18,8 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded;
     private bool jumped;
 
-    private float jumpPower = 5f;
+    public float jumpPower = 5f;
+    AudioSource playerAudioData;
 
     void Awake()
     {
@@ -32,7 +34,8 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-       
+        playerAudioData = GetComponent<AudioSource>();
+        Debug.Log("started");
     }
 
     // Update is called once per frame
@@ -42,7 +45,7 @@ public class PlayerMovement : MonoBehaviour
         PlayerJump();
         if (Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.5f, groundLayer))
         {
-            print("Collided with groud raycast");
+            //print("Collided with groud raycast");
         }
     }
 
@@ -110,9 +113,29 @@ public class PlayerMovement : MonoBehaviour
                 myBody.velocity = new Vector2(myBody.velocity.x, jumpPower);
 
                 anim.SetBool("Jump", true);
+                Console.WriteLine("Player jump");
+                playerAudioData.Play(0);
             }
         }
     }
 
 
 }//class
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
