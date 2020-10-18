@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
-
 public class bonusBlockScript : MonoBehaviour
 {
     public LayerMask playerLayer;
@@ -29,14 +28,12 @@ public class bonusBlockScript : MonoBehaviour
 
             if (topHit != null)
             {
-                if (topHit.gameObject.tag == MyTags.PLAYER_TAG)
+                if (topHit.gameObject.tag == MyTags.PLAYER_TAG && anim.GetCurrentAnimatorStateInfo(0).IsName("BonusBlockAnimation"))
                 {
                     print("BREAK BLOCK!!!");
                     AudioSource.PlayClipAtPoint(clip, new Vector3(5, 1, 2));
                     anim.Play("BonusBlockIdle");
-                    
-                    //gameObject.transform.position = new Vector2(transform.position.x + 1,
-                    //transform.position.y + 1);
+
                 }
             }
 
