@@ -78,6 +78,7 @@ public class snailscript : MonoBehaviour
 
                     anim.Play("Stunned");
                     stunned = true;
+                    print("stunn snail");
 
                     //beetle code here
                     if(tag == MyTags.BEETLE_TAG)
@@ -97,6 +98,8 @@ public class snailscript : MonoBehaviour
                 if (!stunned)
                 {
                     //APPLY DAMAGE TO PLAYER
+                    leftHit.collider.gameObject.GetComponent<PlayerDamage>().DealDamage();
+                    print("LEFT HIT!!");
                 }
                 else
                 {
@@ -104,6 +107,7 @@ public class snailscript : MonoBehaviour
                     {
                       myBody.velocity = new Vector2(15f, myBody.velocity.y);
                       StartCoroutine(Dead(3f));
+
                     }
                 }
             }
@@ -116,6 +120,8 @@ public class snailscript : MonoBehaviour
                 if (!stunned)
                 {
                     //APPLY DAMAGE TO PLAYER
+                    rightHit.collider.gameObject.GetComponent<PlayerDamage>().DealDamage();
+                    print("RIGHT HIT!!");
                 }
                 else
                 {
@@ -165,28 +171,34 @@ public class snailscript : MonoBehaviour
     //SCRIPT FOR BULLETS HIT ENEMIES
     private void OnTriggerEnter2D(Collider2D target)
     {
-        if(tag == MyTags.BEETLE_TAG)
+        if(target.tag != "MainCamera")
         {
-            anim.Play("Stunned");
-            canMove = false;
-            myBody.velocity = new Vector2(0, 0);
-            StartCoroutine(Dead(0.4f));
-        }
-
-        if(tag == MyTags.SNAIL_TAG)
-        {
-            if (!stunned)
+            if (tag == MyTags.BEETLE_TAG)
             {
                 anim.Play("Stunned");
-                stunned = true;
                 canMove = false;
                 myBody.velocity = new Vector2(0, 0);
+                StartCoroutine(Dead(0.4f));
             }
-            else
+
+            if (tag == MyTags.SNAIL_TAG)
             {
-                gameObject.SetActive(false);
+                if (!stunned)
+                {
+                    anim.Play("Stunned");
+                    print("stunning!!!");
+                    print(target.tag);
+                    stunned = true;
+                    canMove = false;
+                    myBody.velocity = new Vector2(0, 0);
+                }
+                else
+                {
+                    gameObject.SetActive(false);
+                }
             }
         }
+       
     }
 
 
