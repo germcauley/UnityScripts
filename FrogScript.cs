@@ -2,135 +2,100 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class FrogScript : MonoBehaviour
 {
 
-    public float speed = 5f;
-
-    private Rigidbody2D myBody;
     private Animator anim;
 
+    private bool animation_Started;
+    private bool animation_Finished;
 
-    public Transform groundCheckPosition;
-    public LayerMask groundLayer;
+    private int jumpedTimes;
+    private bool jumpLeft = true;
 
-    private bool isGrounded;
-    private bool jumped;
+    private string coroutine_Name = "FrogJump";
 
-    public float jumpPower = 5f;
+    public LayerMask playerLayer;
+    private GameObject player;
 
     void Awake()
     {
-        myBody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+    }
+
+    void Start()
+    {
+        StartCoroutine(coroutine_Name);
+        player = GameObject.FindGameObjectWithTag(MyTags.PLAYER_TAG);
         
     }
 
-
-
-
-    // Start is called before the first frame update
-    void Start()
+    private void Update()
     {
-       
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        CheckIfGrounded();
-        PlayerJump();
-        if (Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.5f, groundLayer))
+        if(Physics2D.OverlapCircle(transform.position, 0.5f, playerLayer))
         {
-            //print("Collided with groud raycast");
+            player.GetComponent<PlayerDamage>().DealDamage();
         }
     }
 
-
-     void FixedUpdate()
+    void LateUpdate()
     {
-        PlayerWalk();  
+        if (animation_Finished && animation_Started)
+        {
+            animation_Started = false;
+
+            transform.parent.position = transform.position;
+            transform.localPosition = Vector3.zero;
+        }
     }
 
-    void PlayerWalk()
+    IEnumerator FrogJump()
     {
-        float h = Input.GetAxisRaw("Horizontal");
+        yield return new WaitForSeconds(Random.Range(1f, 4f));
 
-        if (h > 0)
+        animation_Started = true;
+        animation_Finished = false;
+
+        jumpedTimes++;
+
+        if (jumpLeft)
         {
-            myBody.velocity = new Vector2(speed, myBody.velocity.y);
-            ChangeDirection(1);
-
-        } else if (h < 0)
-        {
-            myBody.velocity = new Vector2(-speed, myBody.velocity.y);
-
-            ChangeDirection(-1);
+            anim.Play("Frog_JumpLeft");
         }
         else
         {
-            myBody.velocity = new Vector2(0F, myBody.velocity.y);
+            anim.Play("Frog_JumpRight");
         }
 
-        anim.SetInteger("Speed", Mathf.Abs((int)myBody.velocity.x));
+        StartCoroutine(coroutine_Name);
 
-        
     }
 
-    void ChangeDirection(int direction)
+    void AnimationFinished()
     {
-        Vector3 tempScale = transform.localScale;
-        tempScale.x = direction;
-        transform.localScale = tempScale;
-    }
 
+        animation_Finished = true;
 
-   void CheckIfGrounded()
-    {
-        isGrounded = Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.1f, groundLayer);
-
-        if (isGrounded)
+        if (jumpLeft)
         {
-            if (jumped)
-            {
-                jumped = false;
-
-                anim.SetBool("Jump", false);
-            }
+            anim.Play("Frog_IdleLeft");
         }
-    }
-
-   void PlayerJump()
-    {
-        if (isGrounded)
+        else
         {
-            if (Input.GetKey(KeyCode.Space))
-            {
-                jumped = true;
-                myBody.velocity = new Vector2(myBody.velocity.x, jumpPower);
+            anim.Play("Frog_IdleRight");
+        }
 
-                anim.SetBool("Jump", true);
-            }
+        if (jumpedTimes == 3)
+        {
+            jumpedTimes = 0;
+
+            Vector3 tempScale = transform.localScale;
+            tempScale.x *= -1;
+            transform.localScale = tempScale;
+
+            jumpLeft = !jumpLeft;
         }
     }
 
-
-}//class
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   
+} // class

@@ -114,7 +114,3 @@ public class BirdScript : MonoBehaviour
     }
 
 } // class
-
-
-
-

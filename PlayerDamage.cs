@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerDamage : MonoBehaviour
 {
@@ -20,6 +21,10 @@ public class PlayerDamage : MonoBehaviour
         canDamage = true;
     }
 
+    void Start()
+    {
+        Time.timeScale = 1f;
+    }
     // Update is called once per frame
     public void DealDamage()
     {
@@ -32,7 +37,8 @@ public class PlayerDamage : MonoBehaviour
             }
             if(lifeScoreCount == 0)
             {
-
+                Time.timeScale = 0f;
+                StartCoroutine(RestartGame());
             }
             canDamage = false;
             StartCoroutine(WaitForDamage());
@@ -44,6 +50,12 @@ public class PlayerDamage : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
         canDamage = true;
+    }
+
+    IEnumerator RestartGame()
+    {
+        yield return new WaitForSecondsRealtime(2f);
+        SceneManager.LoadScene("Gameplay");
     }
 
 
