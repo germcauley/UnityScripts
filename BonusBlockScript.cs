@@ -33,6 +33,7 @@ public class bonusBlockScript : MonoBehaviour
                     print("BREAK BLOCK!!!");
                     AudioSource.PlayClipAtPoint(clip, new Vector3(5, 1, 2));
                     anim.Play("BonusBlockIdle");
+                    print("BONUS BLOCK ACTIVATED!");
 
                 }
             }
