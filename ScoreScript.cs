@@ -23,6 +23,19 @@ public class ScoreScript : MonoBehaviour
             scoreCount++;
             coinTextScore.text = "x" + scoreCount;
         }
+
+       
+
+    }
+
+    private void OnCollisionEnter2D(Collision2D target)
+    {
+         if (target.gameObject.tag == MyTags.BONUS_BLOCK_TAG)
+        {
+            print("Bonus score!");
+            scoreCount += 5;
+            coinTextScore.text = "x" + scoreCount;
+        }
     }
 
 }//class

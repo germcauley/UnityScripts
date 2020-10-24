@@ -9,36 +9,76 @@ public class bonusBlockScript : MonoBehaviour
     private Animator anim;
     // Start is called before the first frame update
     public AudioClip clip;
+    
+
+    private Vector3 moveDirection = Vector3.up;
+    private Vector3 originPosition;
+    private Vector3 animPosition;
+  
+    private bool startAnim;
+    private bool canAnimate = true;
+
+    void Awake()
+    {
+        anim = GetComponent<Animator>();
+      
+    }
 
     void Start()
     {
-        anim = GetComponent<Animator>();
+        originPosition = transform.position;
+        animPosition = transform.position;
+        animPosition.y += 0.15f;
     }
 
     // Update is called once per frame
     void Update()
     {
         CheckCollision();
-
-        void CheckCollision()
+        AnimateUpDown();
+        
+    }
+    void CheckCollision()
+    {
+        if (canAnimate)
         {
-
-
-            Collider2D topHit = Physics2D.OverlapCircle(bottomCollision.position, 0.2f, playerLayer);
-
-            if (topHit != null)
+            //Collider2D topHit = Physics2D.OverlapCircle(bottomCollision.position, 0.2f, playerLayer);
+            RaycastHit2D topHit = Physics2D.Raycast(bottomCollision.position, Vector2.down, 0.1f, playerLayer);
+            if (topHit)
             {
-                if (topHit.gameObject.tag == MyTags.PLAYER_TAG && anim.GetCurrentAnimatorStateInfo(0).IsName("BonusBlockAnimation"))
+                if (topHit.collider.gameObject.tag == MyTags.PLAYER_TAG)
                 {
-                    print("BREAK BLOCK!!!");
+                    //increase score                
                     AudioSource.PlayClipAtPoint(clip, new Vector3(5, 1, 2));
                     anim.Play("BonusBlockIdle");
                     print("BONUS BLOCK ACTIVATED!");
-
+                    startAnim = true;
+                    canAnimate = false;
+                    transform.gameObject.tag = "UsedBlock";
+                    //Destroy(coll);
+                    //print("Collider destroyed");
                 }
             }
+        }
+        
 
 
+    }
+
+    void AnimateUpDown()
+    {
+        if (startAnim)
+        {
+            transform.Translate(moveDirection * Time.smoothDeltaTime);
+
+            if (transform.position.y >= animPosition.y)
+            {
+                moveDirection = Vector3.down;
+            }
+            else if (transform.position.y <= originPosition.y)
+            {
+                startAnim = false;
+            }
         }
     }
 }
