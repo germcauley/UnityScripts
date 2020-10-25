@@ -33,7 +33,7 @@ public class ScoreScript : MonoBehaviour
          if (target.gameObject.tag == MyTags.BONUS_BLOCK_TAG)
         {
             print("Bonus score!");
-            scoreCount += 5;
+            scoreCount += 10;
             coinTextScore.text = "x" + scoreCount;
         }
     }
