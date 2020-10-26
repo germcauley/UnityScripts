@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 [RequireComponent(typeof(AudioSource))]
 public class bonusBlockScript : MonoBehaviour
 {
@@ -17,6 +18,8 @@ public class bonusBlockScript : MonoBehaviour
   
     private bool startAnim;
     private bool canAnimate = true;
+    //private Text coinTextScore;
+    //private int scoreCount;
 
     void Awake()
     {
@@ -26,6 +29,7 @@ public class bonusBlockScript : MonoBehaviour
 
     void Start()
     {
+        
         originPosition = transform.position;
         animPosition = transform.position;
         animPosition.y += 0.15f;
@@ -46,17 +50,17 @@ public class bonusBlockScript : MonoBehaviour
             RaycastHit2D topHit = Physics2D.Raycast(bottomCollision.position, Vector2.down, 0.1f, playerLayer);
             if (topHit)
             {
-                if (topHit.collider.gameObject.tag == MyTags.PLAYER_TAG)
+                if (topHit.collider.gameObject.tag == MyTags.PLAYER_TAG && canAnimate)
                 {
                     //increase score                
                     AudioSource.PlayClipAtPoint(clip, new Vector3(5, 1, 2));
                     anim.Play("BonusBlockIdle");
                     print("BONUS BLOCK ACTIVATED!");
+                    //scoreCount += 5;
+                    //coinTextScore.text = "x" + scoreCount;
+                    //print("BONUS BLOCK CHANGED!");
                     startAnim = true;
-                    canAnimate = false;
-                    transform.gameObject.tag = "UsedBlock";
-                    //Destroy(coll);
-                    //print("Collider destroyed");
+                    canAnimate = false;                   
                 }
             }
         }
