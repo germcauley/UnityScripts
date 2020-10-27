@@ -28,15 +28,13 @@ public class ScoreScript : MonoBehaviour
 
     }
 
-    private void OnCollisionEnter2D(Collision2D target)
+    public void BonusBlock()
     {
-         if (target.gameObject.tag == MyTags.BONUS_BLOCK_TAG)
-        {
-            print("Bonus score!");
-            scoreCount += 10;
-            coinTextScore.text = "x" + scoreCount;
-        }
+        print("Bonus score!");
+        scoreCount += 5;
+        coinTextScore.text = "x" + scoreCount;
     }
+    
 
 }//class
 
