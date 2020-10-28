@@ -31,6 +31,12 @@ public class BossScript : MonoBehaviour
         anim.Play("BossAnimation");
     }
 
+    public void DeactivateBossScript()
+    {
+        StopCoroutine(coroutine_Name);
+        enabled = false;
+    }
+
     IEnumerator StartAttack()
     {
         yield return new WaitForSeconds(Random.Range(2f, 5f));
