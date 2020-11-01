@@ -2,61 +2,64 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class skeletonScript : MonoBehaviour
+public class x : MonoBehaviour
 {
-
+    public bool moveRight;
     public float moveSpeed = 1f;
-    private Rigidbody2D myBody;
-    private Animator anim;
+
+    //public Transform left_Collision, right_Collision, top_Collision, down_Collision;
+    public Transform top_Collision;
+    private Vector3 left_Collision_Pos, right_Collision_Pos;
 
     public LayerMask playerLayer;
-
-    private bool moveLeft;
-
-    private bool canMove;
     private bool stunned;
+    private Animator anim;
 
-    public Transform left_Collision, right_Collision, top_Collision, down_Collision;
-    private Vector3 left_Collision_Pos, right_Collision_Pos;
+    public AudioClip ouchclip;
+    AudioSource skeletonAudioData;
+    // Start is called before the first frame update
 
     void Awake()
     {
-        myBody = GetComponent<Rigidbody2D>();
+        //myBody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-
-        left_Collision_Pos = left_Collision.position;
-        right_Collision_Pos = right_Collision.position;
+        skeletonAudioData = GetComponent<AudioSource>();
     }
 
-    void Start()
-    {
-        moveLeft = true;
-        canMove = true;
-    }
+    // Use this for initialization
 
     void Update()
     {
-        if (canMove)
+
+        // Use this for initialization
+        if (!stunned)
         {
-            if (moveLeft)
+            if (moveRight)
             {
-                myBody.velocity = new Vector2(-moveSpeed, myBody.velocity.y);
+                transform.Translate(2 * Time.deltaTime * moveSpeed, 0, 0);
+                transform.localScale = new Vector2(6, 6);
             }
+
             else
             {
-                myBody.velocity = new Vector2(moveSpeed, myBody.velocity.y);
+                transform.Translate(-2 * Time.deltaTime * moveSpeed, 0, 0);
+                transform.localScale = new Vector2(-6, 6);
             }
         }
+        else
+        {
+            transform.Translate(0 * Time.deltaTime * moveSpeed, 0, 0);
+        }
+       
 
         CheckCollision();
-
     }
 
     void CheckCollision()
     {
 
-        RaycastHit2D leftHit = Physics2D.Raycast(left_Collision.position, Vector2.left, 0.1f, playerLayer);
-        RaycastHit2D rightHit = Physics2D.Raycast(right_Collision.position, Vector2.right, 0.1f, playerLayer);
+        //RaycastHit2D leftHit = Physics2D.Raycast(left_Collision.position, Vector2.left, 0.1f, playerLayer);
+        //RaycastHit2D rightHit = Physics2D.Raycast(right_Collision.position, Vector2.right, 0.1f, playerLayer);
 
         Collider2D topHit = Physics2D.OverlapCircle(top_Collision.position, 0.2f, playerLayer);
 
@@ -64,151 +67,102 @@ public class skeletonScript : MonoBehaviour
         {
             if (topHit.gameObject.tag == MyTags.PLAYER_TAG)
             {
+                print("Tophit detected");
                 if (!stunned)
                 {
                     topHit.gameObject.GetComponent<Rigidbody2D>().velocity =
                         new Vector2(topHit.gameObject.GetComponent<Rigidbody2D>().velocity.x, 7f);
 
-                    canMove = false;
-                    myBody.velocity = new Vector2(0, 0);
+                    //canMove = false;
+                    //myBody.velocity = new Vector2(0, 0);
+                    
                     print("Skel stun");
-                    anim.Play("StunSkel");
+                    skeletonAudioData.PlayOneShot(ouchclip, 0.7F);
+                    anim.Play("StunSkelly");
                     stunned = true;
-                    StartCoroutine(ResetIdle());
+                    StartCoroutine(ResetWalk());
 
-                    // BEETLE CODE HERE
-                    if (tag == MyTags.BEETLE_TAG)
-                    {
-                        anim.Play("StunSkel");
-                        StartCoroutine(Dead(0.5f));
-                    }
+                    //// BEETLE CODE HERE
+                    //if (tag == MyTags.BEETLE_TAG)
+                    //{
+                    //    anim.Play("StunSkel");
+                    //    StartCoroutine(Dead(0.5f));
+                    //}
                 }
             }
         }
 
-        if (leftHit)
-        {
-            if (leftHit.collider.gameObject.tag == MyTags.PLAYER_TAG)
-            {
-                if (!stunned)
-                {
-                    // APPLY DAMAGE TO PLAYER
-                    leftHit.collider.gameObject.GetComponent<PlayerDamage>().DealDamage();
-                }
-                else
-                {
-                    if (tag != MyTags.BEETLE_TAG)
-                    {
-                        myBody.velocity = new Vector2(15f, myBody.velocity.y);
-                        StartCoroutine(Dead(3f));
-                    }
-                }
-            }
-        }
+        //if (leftHit)
+        //{
+        //    print("LEFT HIT");
+        //    if (leftHit.collider.gameObject.tag == MyTags.PLAYER_TAG)
+        //    {
+        //        if (!stunned)
+        //        {
+        //            // APPLY DAMAGE TO PLAYER
+        //            leftHit.collider.gameObject.GetComponent<PlayerDamage>().DealDamage();
+        //        }
+        //        else
+        //        {
+        //            if (tag != MyTags.BEETLE_TAG)
+        //            {
+        //                myBody.velocity = new Vector2(15f, myBody.velocity.y);
+        //                StartCoroutine(Dead(3f));
+        //            }
+        //        }
+        //    }
+        //}
 
-        if (rightHit)
-        {
-            if (rightHit.collider.gameObject.tag == MyTags.PLAYER_TAG)
-            {
-                if (!stunned)
-                {
-                    // APPLY DAMAGE TO PLAYER
-                    rightHit.collider.gameObject.GetComponent<PlayerDamage>().DealDamage();
-                }
-                else
-                {
-                    if (tag != MyTags.BEETLE_TAG)
-                    {
-                        myBody.velocity = new Vector2(-15f, myBody.velocity.y);
-                        StartCoroutine(Dead(3f));
-                    }
-                }
-            }
-        }
+        //if (rightHit)
+        //{
+        //    print("RIGHT HIT");
+        //    if (rightHit.collider.gameObject.tag == MyTags.PLAYER_TAG)
+        //    {
+        //        if (!stunned)
+        //        {
+        //            // APPLY DAMAGE TO PLAYER
+        //            rightHit.collider.gameObject.GetComponent<PlayerDamage>().DealDamage();
+        //        }
+        //        else
+        //        {
+        //            if (tag != MyTags.BEETLE_TAG)
+        //            {
+        //                myBody.velocity = new Vector2(-15f, myBody.velocity.y);
+        //                StartCoroutine(Dead(3f));
+        //            }
+        //        }
+        //    }
+        //}
 
-        // IF we don't detect collision any more do whats in {}
-        if (!Physics2D.Raycast(down_Collision.position, Vector2.down, 0.1f))
-        {
+        //// IF we don't detect collision any more do whats in {}
+        //if (!Physics2D.Raycast(down_Collision.position, Vector2.down, 0.1f))
+        //{
 
-            ChangeDirection();
-        }
-
-    }
-
-    void ChangeDirection()
-    {
-
-        moveLeft = !moveLeft;
-
-        Vector3 tempScale = transform.localScale;
-
-        if (moveLeft)
-        {
-            tempScale.x = Mathf.Abs(tempScale.x);
-
-            left_Collision.position = left_Collision_Pos;
-            right_Collision.position = right_Collision_Pos;
-
-        }
-        else
-        {
-            tempScale.x = -Mathf.Abs(tempScale.x);
-
-            left_Collision.position = right_Collision_Pos;
-            right_Collision.position = left_Collision_Pos;
-        }
-
-        transform.localScale = tempScale;
+        //    ChangeDirection();
+        //}
 
     }
-
-    IEnumerator Dead(float timer)
-    {
-        yield return new WaitForSeconds(timer);
-        gameObject.SetActive(false);
-    }
-
-    IEnumerator ResetIdle()
+    IEnumerator ResetWalk()
     {
         yield return new WaitForSeconds(2f);
-        anim.Play("IdleSkel");
+        anim.Play("skellytest");
         stunned = false;
-        print("Skel idle");
+        print("Walk");
     }
 
-    void OnTriggerEnter2D(Collider2D target)
+    void OnTriggerEnter2D(Collider2D trig)
+
     {
-        if (target.tag == MyTags.BULLET_TAG)
+        if (trig.gameObject.CompareTag("turn"))
         {
-
-            if (tag == MyTags.BEETLE_TAG)
+            if (moveRight)
             {
-                anim.Play("StunSkel");
-
-                canMove = false;
-                myBody.velocity = new Vector2(0, 0);
-
-                StartCoroutine(Dead(0.4f));
+                moveRight = false;
             }
-
-            if (tag == MyTags.SNAIL_TAG)
+            else
             {
-                if (!stunned)
-                {
-
-                    anim.Play("StunSkel");
-                    stunned = true;
-                    canMove = false;
-                    myBody.velocity = new Vector2(0, 0);
-
-                }
-                else
-                {
-                    gameObject.SetActive(false);
-                }
+                moveRight = true;
             }
-
         }
     }
-
-} // class
+}
