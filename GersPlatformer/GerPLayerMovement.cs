@@ -13,7 +13,10 @@ public class GerPlayerMovement : MonoBehaviour
 
 
     public Transform groundCheckPosition;
-    public LayerMask groundLayer;
+    public LayerMask groundLayer,enemyLayer;
+    //public Transform left_Collision, right_Collision, top_Collision, down_Collision;
+    public Transform right_Collision;
+    private Vector3 left_Collision_Pos, right_Collision_Pos;
 
     private bool isGrounded;
     private bool jumped;
@@ -23,6 +26,7 @@ public class GerPlayerMovement : MonoBehaviour
     public AudioClip jumpClip;
     public AudioClip landClip;
     public AudioClip walkclip;
+    public AudioClip swordclip;
 
 
     AudioSource playerAudioData;
@@ -52,6 +56,7 @@ public class GerPlayerMovement : MonoBehaviour
         CheckIfGrounded();
         PlayerJump();
         PlayerWalk();
+        PlayerAttack();
         PlayerSounds();
         
         
@@ -164,6 +169,22 @@ public class GerPlayerMovement : MonoBehaviour
         }
     }
 
+    void PlayerAttack()
+    {
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            anim.SetBool("Attack", true);
+            playerAudioData.PlayOneShot(swordclip, 0.5f);
+            print("PlayerAttack");
+            CheckCollision();
+        }
+        if (Input.GetKeyUp(KeyCode.J))
+        {
+            anim.SetBool("Attack", false);
+            print("PlayerStopAttack");
+        }
+    }
+
     IEnumerator setJumped()
     {
         yield return new WaitForSeconds(0.5f);
@@ -171,7 +192,49 @@ public class GerPlayerMovement : MonoBehaviour
         jumped = true;
     }
 
-    
+
+    void CheckCollision()
+    {
+        print("check collision");
+        //RaycastHit2D leftHit = Physics2D.Raycast(left_Collision.position, Vector2.left, 0.1f, enemyLayer);
+        RaycastHit2D SwordHit = Physics2D.Raycast(right_Collision.position, Vector2.right, 0.1f, enemyLayer);
+
+        //Collider2D topHit = Physics2D.OverlapCircle(top_Collision.position, 0.2f, enemyLayer);
+
+        
+        //if (leftHit)
+        //{
+        //    if (leftHit.collider.gameObject.tag == MyTags.PLAYER_TAG)
+        //    {
+     
+        //        // APPLY DAMAGE TO PLAYER
+        //        leftHit.collider.gameObject.GetComponent<PlayerDamage>().DealDamage();
+
+        //    }
+        //}
+
+        if (SwordHit)
+        {
+            print("hit skeleton!!!");
+            if (SwordHit.collider.gameObject.tag == MyTags.SKELETON_TAG)
+            {
+                print("hit skeleton!!!");
+                SwordHit.collider.gameObject.GetComponent<x>().StunSkel();
+                // rightHit.collider.gameObject.GetComponent<PlayerDamage>().DealDamage();
+
+            }
+        }
+
+        //// IF we don't detect collision any more do whats in {}
+        //if (!Physics2D.Raycast(down_Collision.position, Vector2.down, 0.1f))
+        //{
+
+        //    ChangeDirection();
+        //}
+
+    }
+
+
 }//class
 
 
