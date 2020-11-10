@@ -13,6 +13,8 @@ public class GerPlayerMovement : MonoBehaviour
 
 
     public Transform groundCheckPosition;
+
+
     public LayerMask groundLayer, enemyLayer;
     //public Transform left_Collision, right_Collision, top_Collision, down_Collision;
     public Transform right_Collision;
@@ -42,8 +44,8 @@ public class GerPlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        gameObject.transform.GetChild(1).gameObject.SetActive(false);       
 
-        Debug.Log("started");
     }
 
     // Update is called once per frame
@@ -76,9 +78,9 @@ public class GerPlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.J))
         {
-
+            
             anim.Play("PlayerAttack", 0, 0f);
-            print("attack!!");
+            //print("attack!!");
             playerAudioData.PlayOneShot(swordclip, 0.5f);
             
             CheckCollision();
@@ -158,7 +160,7 @@ public class GerPlayerMovement : MonoBehaviour
 
 
     }
-        void CheckIfGrounded()
+    void CheckIfGrounded()
     {
         isGrounded = Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.5f, groundLayer);
         //print(isGrounded + "grounded!");
@@ -225,15 +227,17 @@ public class GerPlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.J))
         {
             anim.SetBool("Attack", true);
+            gameObject.transform.GetChild(1).gameObject.SetActive(true);          
+            //print(gameObject.transform.GetChild(0).gameObject.activeInHierarchy);
             playerAudioData.PlayOneShot(swordclip, 0.5f);
-            //print("PlayerAttack");
-            CheckCollision();
+            StartCoroutine(setSword());
         }
         if (Input.GetKeyUp(KeyCode.J))
         {
             anim.SetBool("Attack", false);
             // print("PlayerStopAttack");
         }
+        
     }
 
     IEnumerator setJumped()
@@ -241,6 +245,13 @@ public class GerPlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         //print("SET JUMP CO ROUTINE");
         jumped = true;
+        
+    }
+
+    IEnumerator setSword()
+    {
+        yield return new WaitForSeconds(0.4f);
+        gameObject.transform.GetChild(1).gameObject.SetActive(false);
         
     }
 
@@ -256,16 +267,26 @@ public class GerPlayerMovement : MonoBehaviour
             //print("hit skeleton!!!");
             if (SwordHit.collider.gameObject.tag == MyTags.SKELETON_TAG)
             {
-                print("hit skeleton!!!");
-                SwordHit.collider.gameObject.GetComponent<SkeletonScriptNew>().StunSkel();
-                SwordHit.collider.gameObject.GetComponent<SkeletonScriptNew>().DealDamage();
-                print(SwordHit.collider.gameObject.GetComponent<SkeletonScriptNew>().health--);
+                //print("hit skeleton!!!");
+               // SwordHit.collider.gameObject.GetComponent<SkeletonScriptNew>().StunSkel();
+                //SwordHit.collider.gameObject.GetComponent<SkeletonScriptNew>().DealDamage();
+                //print(SwordHit.collider.gameObject.GetComponent<SkeletonScriptNew>().health--);
 
             }
         }
 
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("EnemyWeapon") )
+        {
+            //print("sword status: "+target.gameObject.activeInHierarchy);
+            //print("Skelly hit by sword");            
+            print("HIT BY SKELLY");
+
+        }
+    }
 
 }//class
 

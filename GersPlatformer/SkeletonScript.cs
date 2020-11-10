@@ -2,64 +2,70 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class x : MonoBehaviour
+public class FixedSkeleton : MonoBehaviour
 {
-    public bool moveRight;
+    private bool moveRight;
+    private bool canWalk = true;
     public float moveSpeed = 1f;
+    private bool canDamage =true;
 
-    //public Transform left_Collision, right_Collision, top_Collision, down_Collision;
+    //public Transform left_Collision, right_Collision, top_Collision;//, down_Collision;
     public Transform top_Collision;
     private Vector3 left_Collision_Pos, right_Collision_Pos;
-
+    private Rigidbody2D myBody;
     public LayerMask playerLayer;
     private bool stunned;
     private Animator anim;
 
+    public int health = 1;
     public AudioClip ouchclip;
+    public AudioClip dieClip;
     AudioSource skeletonAudioData;
+    
     // Start is called before the first frame update
-
-    void Awake()
+    void Start()
     {
-        //myBody = GetComponent<Rigidbody2D>();
+        
+    }
+
+    private void Awake()
+    {
+        
+        myBody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         skeletonAudioData = GetComponent<AudioSource>();
     }
 
-    // Use this for initialization
-
+    // Update is called once per frame
     void Update()
     {
-
         // Use this for initialization
-        if (!stunned)
-        {
-            if (moveRight)
-            {
-                transform.Translate(2 * Time.deltaTime * moveSpeed, 0, 0);
-                transform.localScale = new Vector2(6, 6);
-            }
 
-            else
-            {
-                transform.Translate(-2 * Time.deltaTime * moveSpeed, 0, 0);
-                transform.localScale = new Vector2(-6, 6);
-            }
+        if (moveRight && canWalk)
+        {
+            transform.Translate(2 * Time.deltaTime * moveSpeed, 0, 0);
+            transform.localScale = new Vector2(6, 6);
+            //print("walk");
         }
+
+        else if (!moveRight && canWalk)
+        {
+            transform.Translate(-2 * Time.deltaTime * moveSpeed, 0, 0);
+            transform.localScale = new Vector2(-6, 6);
+            //print("walk");
+        }
+
         else
         {
             transform.Translate(0 * Time.deltaTime * moveSpeed, 0, 0);
         }
-       
 
         CheckCollision();
     }
 
+
     void CheckCollision()
     {
-
-        //RaycastHit2D leftHit = Physics2D.Raycast(left_Collision.position, Vector2.left, 0.1f, playerLayer);
-        //RaycastHit2D rightHit = Physics2D.Raycast(right_Collision.position, Vector2.right, 0.1f, playerLayer);
 
         Collider2D topHit = Physics2D.OverlapCircle(top_Collision.position, 0.2f, playerLayer);
 
@@ -73,87 +79,18 @@ public class x : MonoBehaviour
                     topHit.gameObject.GetComponent<Rigidbody2D>().velocity =
                         new Vector2(topHit.gameObject.GetComponent<Rigidbody2D>().velocity.x, 7f);
 
-                    //canMove = false;
-                    //myBody.velocity = new Vector2(0, 0);
-                    
-                    print("Skel stun");
-                    skeletonAudioData.PlayOneShot(ouchclip, 0.7F);
-                    anim.Play("StunSkelly");
-                    stunned = true;
-                    StartCoroutine(ResetWalk());
-
-                    //// BEETLE CODE HERE
-                    //if (tag == MyTags.BEETLE_TAG)
-                    //{
-                    //    anim.Play("StunSkel");
-                    //    StartCoroutine(Dead(0.5f));
-                    //}
+                    StunSkel();                    
                 }
             }
         }
 
-        //if (leftHit)
-        //{
-        //    print("LEFT HIT");
-        //    if (leftHit.collider.gameObject.tag == MyTags.PLAYER_TAG)
-        //    {
-        //        if (!stunned)
-        //        {
-        //            // APPLY DAMAGE TO PLAYER
-        //            leftHit.collider.gameObject.GetComponent<PlayerDamage>().DealDamage();
-        //        }
-        //        else
-        //        {
-        //            if (tag != MyTags.BEETLE_TAG)
-        //            {
-        //                myBody.velocity = new Vector2(15f, myBody.velocity.y);
-        //                StartCoroutine(Dead(3f));
-        //            }
-        //        }
-        //    }
-        //}
-
-        //if (rightHit)
-        //{
-        //    print("RIGHT HIT");
-        //    if (rightHit.collider.gameObject.tag == MyTags.PLAYER_TAG)
-        //    {
-        //        if (!stunned)
-        //        {
-        //            // APPLY DAMAGE TO PLAYER
-        //            rightHit.collider.gameObject.GetComponent<PlayerDamage>().DealDamage();
-        //        }
-        //        else
-        //        {
-        //            if (tag != MyTags.BEETLE_TAG)
-        //            {
-        //                myBody.velocity = new Vector2(-15f, myBody.velocity.y);
-        //                StartCoroutine(Dead(3f));
-        //            }
-        //        }
-        //    }
-        //}
-
-        //// IF we don't detect collision any more do whats in {}
-        //if (!Physics2D.Raycast(down_Collision.position, Vector2.down, 0.1f))
-        //{
-
-        //    ChangeDirection();
-        //}
 
     }
-    IEnumerator ResetWalk()
-    {
-        yield return new WaitForSeconds(2f);
-        anim.Play("skellytest");
-        stunned = false;
-        print("Walk");
-    }
 
-    void OnTriggerEnter2D(Collider2D trig)
-
+    private void OnTriggerEnter2D(Collider2D target)
     {
-        if (trig.gameObject.CompareTag("turn"))
+
+        if (target.gameObject.CompareTag("turn"))
         {
             if (moveRight)
             {
@@ -164,5 +101,70 @@ public class x : MonoBehaviour
                 moveRight = true;
             }
         }
+        if (target.gameObject.CompareTag("Sword") && target.gameObject.activeInHierarchy == true)
+        {
+            //print("sword status: "+target.gameObject.activeInHierarchy);
+            //print("Skelly hit by sword");            
+            DealDamage();
+            
+        }
+    }
+
+    public void DealDamage()
+    {
+
+        if (canDamage && health > 1)
+        {
+            StunSkel();
+            health--;
+            //print("Skel hit!");
+           // print("HEALTH IS "+health);
+            canDamage = false;
+            StartCoroutine(ResetWalk());
+            StartCoroutine(WaitForDamage());
+        }
+        else if (canDamage && health == 1)
+        {
+            health--;
+            canWalk = false;
+            //gameObject.GetComponent<BoxCollider2D>().offset = new Vector2(-0.02f, 0.12f);
+            //gameObject.GetComponent<BoxCollider2D>().size = new Vector2(0.12f,0.10f);
+            anim.Play("SkellyDead");            
+            StartCoroutine(KillSkelly());
+            
+        }
+
+    }
+
+    public void StunSkel()
+    {
+        skeletonAudioData.PlayOneShot(ouchclip, 0.7F);
+        anim.Play("SkellyStun");
+        stunned = true;
+        StartCoroutine(ResetWalk());
+    }
+
+    IEnumerator WaitForDamage()
+    {
+        yield return new WaitForSeconds(1f);
+        canDamage = true;
+    }
+
+
+    IEnumerator ResetWalk()
+    {
+        yield return new WaitForSeconds(0.5f);
+        anim.Play("SkellyWalk");
+        stunned = false;       
+    }
+
+    IEnumerator KillSkelly() 
+    {
+        print("Kill skelly");
+        yield return new WaitForSeconds(0.5f);
+        skeletonAudioData.PlayOneShot(dieClip, 0.7F);
+        yield return new WaitForSeconds(1.5f);
+        gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 }
