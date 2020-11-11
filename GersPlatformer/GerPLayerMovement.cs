@@ -9,12 +9,8 @@ public class GerPlayerMovement : MonoBehaviour
     public float speed = 5f;
 
     private Rigidbody2D myBody;
-    private Animator anim;
-
-
+    private Animator anim;    
     public Transform groundCheckPosition;
-
-
     public LayerMask groundLayer, enemyLayer;
     //public Transform left_Collision, right_Collision, top_Collision, down_Collision;
     public Transform right_Collision;
@@ -44,6 +40,7 @@ public class GerPlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //make player weapon inactive
         gameObject.transform.GetChild(1).gameObject.SetActive(false);       
 
     }
@@ -51,7 +48,8 @@ public class GerPlayerMovement : MonoBehaviour
     // Update is called once per frame
 
     void Update()
-    {
+    {       
+
         CheckIfGrounded();
         PlayerJump();
         PlayerAttack();
@@ -78,7 +76,7 @@ public class GerPlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.J))
         {
-            
+            Debug.Log(transform.position);
             anim.Play("PlayerAttack", 0, 0f);
             //print("attack!!");
             playerAudioData.PlayOneShot(swordclip, 0.5f);
@@ -227,6 +225,7 @@ public class GerPlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.J))
         {
             anim.SetBool("Attack", true);
+            //make weapon active on attack animation
             gameObject.transform.GetChild(1).gameObject.SetActive(true);          
             //print(gameObject.transform.GetChild(0).gameObject.activeInHierarchy);
             playerAudioData.PlayOneShot(swordclip, 0.5f);
