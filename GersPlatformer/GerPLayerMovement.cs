@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GerPlayerMovement : MonoBehaviour
 {
@@ -11,14 +13,17 @@ public class GerPlayerMovement : MonoBehaviour
     private Rigidbody2D myBody;
     private Animator anim;    
     public Transform groundCheckPosition;
+    private Text lifeText,gameOverText;
+    private int lifeScoreCount;
     public LayerMask groundLayer, enemyLayer;
-    //public Transform left_Collision, right_Collision, top_Collision, down_Collision;
     public Transform right_Collision;
     private Vector3 left_Collision_Pos, right_Collision_Pos;
+    public ParticleSystem blood;
 
     private bool isGrounded;
     private bool jumped;
     private bool fall,walking = false;
+    private bool canDamage = true;
 
     public float jumpPower = 5f;
     public AudioClip jumpClip;
@@ -34,6 +39,14 @@ public class GerPlayerMovement : MonoBehaviour
         myBody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         playerAudioData = GetComponent<AudioSource>();
+
+        lifeText = GameObject.Find("LivesText").GetComponent<Text>();
+        gameOverText = GameObject.Find("GameOver").GetComponent<Text>();
+        gameOverText.gameObject.SetActive(false);
+        lifeScoreCount = 3;
+        lifeText.text = "x" + lifeScoreCount;
+        blood.Stop();
+        print(blood.isPlaying);
 
     }
 
@@ -76,7 +89,7 @@ public class GerPlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.J))
         {
-            Debug.Log(transform.position);
+            //Debug.Log(transform.position);
             anim.Play("PlayerAttack", 0, 0f);
             //print("attack!!");
             playerAudioData.PlayOneShot(swordclip, 0.5f);
@@ -278,16 +291,54 @@ public class GerPlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("EnemyWeapon") )
+        
+        if (collision.gameObject.CompareTag("EnemyWeapon"))
         {
-            //print("sword status: "+target.gameObject.activeInHierarchy);
-            //print("Skelly hit by sword");            
-            print("HIT BY SKELLY");
+            if (canDamage)
+            {
+            lifeScoreCount--;
+                blood.Play();
+                print(blood.isPlaying);
+                print("PLayer hit by skelly");
 
+                if (lifeScoreCount >= 0)
+                {
+                    lifeText.text = "x" + lifeScoreCount;
+                }
+                if (lifeScoreCount == 0)
+                {
+                    Debug.Log("Player is Dead");
+                    anim.Play("PlayerDeath", 0, 0f);
+                    StartCoroutine(RestartGame());
+                }
+                canDamage = false;
+
+                StartCoroutine(WaitForDamage());
+            }
         }
     }
 
-}//class
+    IEnumerator WaitForDamage()
+    {
+        yield return new WaitForSeconds(1f);
+        canDamage = true;
+        blood.Stop();
+    }
+
+    IEnumerator RestartGame()
+    {
+        gameOverText.gameObject.SetActive(true);
+        yield return new WaitForSecondsRealtime(5f);
+        SceneManager.LoadScene("Gameplay");
+    }
+
+
+
+
+
+
+
+}////class
 
 
 
