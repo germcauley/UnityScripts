@@ -30,7 +30,7 @@ public class GerPlayerMovement : MonoBehaviour
     public AudioClip landClip;
     public AudioClip walkclip;
     public AudioClip swordclip;
-
+    
 
     AudioSource playerAudioData;
 
@@ -141,7 +141,7 @@ public class GerPlayerMovement : MonoBehaviour
             if ((Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)))
             {
                 walking = true;
-               // print("Walk Audiostart");
+               
                 playerAudioData.loop = true;
                 playerAudioData.clip = walkclip;
                 playerAudioData.Play();
@@ -289,38 +289,42 @@ public class GerPlayerMovement : MonoBehaviour
 
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
+
+    //only gets called when player enters, need to be called if players stays within range
+    private void OnTriggerEnter2D(Collider2D collision){
         
         if (collision.gameObject.CompareTag("EnemyWeapon"))
         {
-            if (canDamage)
+            
+            if (canDamage)                
             {
-            lifeScoreCount--;
+                lifeScoreCount--;
                 blood.Play();
-                print(blood.isPlaying);
-                print("PLayer hit by skelly");
-
+                print("SKELLY WEAPON COLLIDED");
                 if (lifeScoreCount >= 0)
                 {
                     lifeText.text = "x" + lifeScoreCount;
                 }
                 if (lifeScoreCount == 0)
                 {
-                    Debug.Log("Player is Dead");
+                    
                     anim.Play("PlayerDeath", 0, 0f);
                     StartCoroutine(RestartGame());
                 }
-                canDamage = false;
-
+                canDamage = false;               
                 StartCoroutine(WaitForDamage());
+            }
+            else
+            {
+                print("SKELLY HIT BUT CANNOT DAMAGE PLAYER YET!");
             }
         }
     }
+  
 
     IEnumerator WaitForDamage()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         canDamage = true;
         blood.Stop();
     }
