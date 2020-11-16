@@ -9,7 +9,11 @@ public class GerPlayerMovement : MonoBehaviour
 {
 
     public float speed = 5f;
-    public float movespeed = 1f;  
+    public float movespeed = 1f;   
+
+    public bool clicker = false;
+    private Vector3 hh;
+    private Transform target;
 
     private Rigidbody2D myBody;
     private Transform playerTransform;
@@ -90,8 +94,14 @@ public class GerPlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+
+        if (clicker == true)
+        {
+            target.transform.position = new Vector3(0.15f, 1.0f, 0.15f);
+            transform.position = Vector3.MoveTowards(transform.position, target.transform.position, 2f);
+        }
         
-        
+
     }
 
 
@@ -323,7 +333,30 @@ public class GerPlayerMovement : MonoBehaviour
             }
         }
     }
-  
+
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        //if player collides with skelly weapon
+        if (collision.gameObject.CompareTag("EnemyWeapon"))
+        {
+
+            if (canDamage)
+            {
+                //DamagePlayer(collision);
+
+                //StartCoroutine(WaitForDamage());
+                print("skelly weapon is stil hurting player!!");
+            }
+            else
+            {
+                print("SKELLY HIT BUT CANNOT DAMAGE PLAYER YET!");
+            }
+        }
+    }
+   
+
+
     void DamagePlayer(Collider2D collision)
     {
         
@@ -335,18 +368,12 @@ public class GerPlayerMovement : MonoBehaviour
         playerAudioData.PlayOneShot(ouchClip, 0.5f);
         //Push player away to left from enemy if hit   from right           
         if (transform.position.x < collision.gameObject.transform.parent.gameObject.GetComponent<Transform>().position.x)
-        {
-            //float X = collision.gameObject.GetComponent<Transform>().position.x - offset;
-            //float Y = collision.gameObject.GetComponent<Transform>().position.y;
-            //corotuine interpolates between first parameter over a set duration using a for loop            
-            StartCoroutine(Flinch(1,"left"));
-            
+        {                  
+            StartCoroutine(Flinch(1,"left"));            
         }
         else if (transform.position.x > collision.gameObject.transform.parent.gameObject.GetComponent<Transform>().position.x)
-        {
-            //transform.position = new Vector2(collision.gameObject.GetComponent<Transform>().position.x + offset, collision.gameObject.GetComponent<Transform>().position.y);
+        {           
             StartCoroutine(Flinch(1,"right"));
-
         }
 
 
@@ -365,10 +392,7 @@ public class GerPlayerMovement : MonoBehaviour
     }
 
     IEnumerator Flinch(float X, string direction)
-    {
-        print("FLINCH IS RUNNING");
-
-
+    {        
         if(direction == "left")
         {
             for (int i = 0; i <= X; i++)
@@ -392,9 +416,8 @@ public class GerPlayerMovement : MonoBehaviour
                 transform.position = new Vector2(transform.position.x + i, transform.position.y);
                 yield return new WaitForSeconds(0.175f);
             }
-        }
-            
-        //transform.position = Vector3.MoveTowards(transform.position, new Vector3(-5, 0f, 0f), movespeed * Time.deltaTime);
+        }      
+        
     }
 
 
