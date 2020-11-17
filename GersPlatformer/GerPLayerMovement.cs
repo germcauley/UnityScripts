@@ -11,9 +11,8 @@ public class GerPlayerMovement : MonoBehaviour
     public float speed = 5f;
     public float movespeed = 1f;   
 
-    public bool clicker = false;
-    private Vector3 hh;
-    private Transform target;
+    public bool clicker = false; 
+    
 
     private Rigidbody2D myBody;
     private Transform playerTransform;
@@ -39,6 +38,10 @@ public class GerPlayerMovement : MonoBehaviour
     public AudioClip swordclip;
     AudioSource playerAudioData;
 
+
+    public float flinchSpeed = 0.40f;
+    private Vector2 movement;
+    private bool rightHit,leftHit = false;
 
 
     void Awake()
@@ -78,14 +81,27 @@ public class GerPlayerMovement : MonoBehaviour
         PlayerJump();
         PlayerAttack();
         PlayerWalk();
-        PlayerSounds();        
+        PlayerSounds();
 
 
 
 
 
+        //flinch movement
+        if (leftHit)
+        {
+            
+            movement = new Vector2(transform.position.x - 5, transform.position.y);
+        }
+        else if (rightHit)
+        {
+            
+            movement = new Vector2(transform.position.x + 5, transform.position.y);
+        }
+        
 
-        if (Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.5f, groundLayer))
+
+            if (Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.5f, groundLayer))
         {
             //print("Collided with groud raycast");
         }
@@ -97,15 +113,18 @@ public class GerPlayerMovement : MonoBehaviour
 
         if (clicker == true)
         {
-            target.transform.position = new Vector3(0.15f, 1.0f, 0.15f);
-            transform.position = Vector3.MoveTowards(transform.position, target.transform.position, 2f);
-        }
-        
+            moveCharacter(movement);
+        }     
+
 
     }
 
+    void moveCharacter(Vector2 direction)
+    {
+        myBody.MovePosition((Vector2)transform.position + (direction * flinchSpeed * Time.deltaTime));
+    }
 
-   
+
 
     void PlayerWalk()
     {
@@ -320,7 +339,7 @@ public class GerPlayerMovement : MonoBehaviour
         //if player collides with skelly weapon
         if (collision.gameObject.CompareTag("EnemyWeapon"))
         {
-            
+            anim.SetBool("HasBeenHitIdle", true);
             if (canDamage)                
             {
                 DamagePlayer(collision);                          
@@ -329,7 +348,7 @@ public class GerPlayerMovement : MonoBehaviour
             }
             else
             {
-                print("SKELLY HIT BUT CANNOT DAMAGE PLAYER YET!");
+                //print("SKELLY HIT BUT CANNOT DAMAGE PLAYER YET!");
             }
         }
     }
@@ -350,7 +369,7 @@ public class GerPlayerMovement : MonoBehaviour
             }
             else
             {
-                print("SKELLY HIT BUT CANNOT DAMAGE PLAYER YET!");
+                //print("SKELLY HIT BUT CANNOT DAMAGE PLAYER YET!");
             }
         }
     }
@@ -363,17 +382,20 @@ public class GerPlayerMovement : MonoBehaviour
 
         lifeScoreCount--;
         blood.Play();
-        print("PLAYER HAS BEEN HIT!!");
-        anim.Play("PlayerHit", 0, 0f);
+        print("PLAYER HAS BEEN HIT!!");        
         playerAudioData.PlayOneShot(ouchClip, 0.5f);
         //Push player away to left from enemy if hit   from right           
         if (transform.position.x < collision.gameObject.transform.parent.gameObject.GetComponent<Transform>().position.x)
-        {                  
-            StartCoroutine(Flinch(1,"left"));            
+        {
+            leftHit = true;
+            print("moveleft true");
+            StartCoroutine(Flinch());            
         }
         else if (transform.position.x > collision.gameObject.transform.parent.gameObject.GetComponent<Transform>().position.x)
-        {           
-            StartCoroutine(Flinch(1,"right"));
+        {
+            rightHit = true;
+            print("moveright true");
+            StartCoroutine(Flinch());
         }
 
 
@@ -391,33 +413,19 @@ public class GerPlayerMovement : MonoBehaviour
         canDamage = false;
     }
 
-    IEnumerator Flinch(float X, string direction)
-    {        
-        if(direction == "left")
-        {
-            for (int i = 0; i <= X; i++)
-            {
-                //transform.position = new Vector2(X,Y);
-                print("Player is " + transform.position.x);
-                print("X is" + X);
-                transform.position = new Vector2(transform.position.x - i, transform.position.y);
-                yield return new WaitForSeconds(0.175f);
-            }
-        }   
+    IEnumerator Flinch()
+    {             
+            print("movment is:" + movement.x);
+            print("RUNNING FLINCH COROUTINE");
+            clicker = true;
+            print("click is : " + clicker);
+            yield return new WaitForSeconds(0.3f);
+            clicker = false;
+            anim.SetBool("HasBeenHitIdle", false);
+            print("click is : " + clicker);
+            leftHit = false;
+            rightHit = false;
 
-
-        if (direction == "right")
-        {
-            for (int i = 0; i <= X; i++)
-            {
-                //transform.position = new Vector2(X,Y);
-                print("Player is " + transform.position.x);
-                print("X is" + X);
-                transform.position = new Vector2(transform.position.x + i, transform.position.y);
-                yield return new WaitForSeconds(0.175f);
-            }
-        }      
-        
     }
 
 
