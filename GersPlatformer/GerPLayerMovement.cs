@@ -11,11 +11,10 @@ public class GerPlayerMovement : MonoBehaviour
     public float speed = 5f;
     public float movespeed = 1f;   
 
-    public bool clicker = false; 
+    private bool flincher = false; 
     
 
-    private Rigidbody2D myBody;
-    private Transform playerTransform;
+    private Rigidbody2D myBody;   
     private Animator anim;    
     public Transform groundCheckPosition;
     private Text lifeText,gameOverText;
@@ -83,11 +82,7 @@ public class GerPlayerMovement : MonoBehaviour
         PlayerWalk();
         PlayerSounds();
 
-
-
-
-
-        //flinch movement
+        //flinch movement, will move player left or right depending on where he was hit by enemy
         if (leftHit)
         {
             
@@ -97,8 +92,7 @@ public class GerPlayerMovement : MonoBehaviour
         {
             
             movement = new Vector2(transform.position.x + 5, transform.position.y);
-        }
-        
+        }        
 
 
             if (Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.5f, groundLayer))
@@ -110,8 +104,8 @@ public class GerPlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-
-        if (clicker == true)
+        //controls player flicnh when hes gets hit by enemy
+        if (flincher == true)
         {
             moveCharacter(movement);
         }     
@@ -282,15 +276,14 @@ public class GerPlayerMovement : MonoBehaviour
         {
             anim.SetBool("Attack", true);
             //make weapon active on attack animation
-            gameObject.transform.GetChild(1).gameObject.SetActive(true);          
-            //print(gameObject.transform.GetChild(0).gameObject.activeInHierarchy);
+            gameObject.transform.GetChild(1).gameObject.SetActive(true);                
             playerAudioData.PlayOneShot(swordclip, 0.5f);
             StartCoroutine(setSword());
         }
         if (Input.GetKeyUp(KeyCode.J))
         {
             anim.SetBool("Attack", false);
-            // print("PlayerStopAttack");
+           
         }
         
     }
@@ -339,6 +332,8 @@ public class GerPlayerMovement : MonoBehaviour
         //if player collides with skelly weapon
         if (collision.gameObject.CompareTag("EnemyWeapon"))
         {
+            print("skelly weapon hit");
+
             anim.SetBool("HasBeenHitIdle", true);
             if (canDamage)                
             {
@@ -359,12 +354,9 @@ public class GerPlayerMovement : MonoBehaviour
         //if player collides with skelly weapon
         if (collision.gameObject.CompareTag("EnemyWeapon"))
         {
-
+            print("Skelly weapon touching player. Candamge is:  " +canDamage);
             if (canDamage)
-            {
-                //DamagePlayer(collision);
-
-                //StartCoroutine(WaitForDamage());
+            {                
                 print("skelly weapon is stil hurting player!!");
             }
             else
@@ -381,20 +373,17 @@ public class GerPlayerMovement : MonoBehaviour
         
 
         lifeScoreCount--;
-        blood.Play();
-        print("PLAYER HAS BEEN HIT!!");        
+        blood.Play();             
         playerAudioData.PlayOneShot(ouchClip, 0.5f);
         //Push player away to left from enemy if hit   from right           
         if (transform.position.x < collision.gameObject.transform.parent.gameObject.GetComponent<Transform>().position.x)
         {
-            leftHit = true;
-            print("moveleft true");
+            leftHit = true;            
             StartCoroutine(Flinch());            
         }
         else if (transform.position.x > collision.gameObject.transform.parent.gameObject.GetComponent<Transform>().position.x)
         {
-            rightHit = true;
-            print("moveright true");
+            rightHit = true;            
             StartCoroutine(Flinch());
         }
 
@@ -406,30 +395,22 @@ public class GerPlayerMovement : MonoBehaviour
         }
         if (lifeScoreCount == 0)
         {
-
             anim.Play("PlayerDeath", 0, 0f);
             StartCoroutine(RestartGame());
         }
         canDamage = false;
+        print("candamge is false");
     }
 
     IEnumerator Flinch()
-    {             
-            print("movment is:" + movement.x);
-            print("RUNNING FLINCH COROUTINE");
-            clicker = true;
-            print("click is : " + clicker);
+    {                                 
+            flincher = true;           
             yield return new WaitForSeconds(0.3f);
-            clicker = false;
-            anim.SetBool("HasBeenHitIdle", false);
-            print("click is : " + clicker);
+            flincher = false;
+            anim.SetBool("HasBeenHitIdle", false);           
             leftHit = false;
             rightHit = false;
-
     }
-
-
-
 
 
     IEnumerator WaitForDamage()
@@ -437,6 +418,7 @@ public class GerPlayerMovement : MonoBehaviour
         
         yield return new WaitForSeconds(0.5f);
         canDamage = true;
+        print("candamge is true");
         blood.Stop();
     }
 
