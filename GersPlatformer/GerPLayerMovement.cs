@@ -28,6 +28,7 @@ public class GerPlayerMovement : MonoBehaviour
     private bool jumped;
     private bool fall,walking = false;
     private bool canDamage = true;
+    private bool enemyWeaponStatus;
 
     public float jumpPower = 5f;
     public AudioClip jumpClip;
@@ -45,7 +46,7 @@ public class GerPlayerMovement : MonoBehaviour
 
     void Awake()
     {
-        
+        enemyWeaponStatus = GameObject.Find("Skeleton").GetComponent<FixedSkeleton>().weaponStatus;
         myBody = GetComponent<Rigidbody2D>();        
         anim = GetComponent<Animator>();
         playerAudioData = GetComponent<AudioSource>();
@@ -56,7 +57,7 @@ public class GerPlayerMovement : MonoBehaviour
         //lifeScoreCount = 3;
         lifeText.text = "x" + lifeScoreCount;
         blood.Stop();
-        //print(blood.isPlaying);
+        
 
         //Vars for player distance over time when hit
        
@@ -332,13 +333,11 @@ public class GerPlayerMovement : MonoBehaviour
         //if player collides with skelly weapon
         if (collision.gameObject.CompareTag("EnemyWeapon"))
         {
-            print("skelly weapon hit");
-
+            print("skelly weapon hit");            
             anim.SetBool("HasBeenHitIdle", true);
             if (canDamage)                
             {
-                DamagePlayer(collision);                          
-                             
+                DamagePlayer(collision);                
                 StartCoroutine(WaitForDamage());
             }
             else
@@ -354,7 +353,8 @@ public class GerPlayerMovement : MonoBehaviour
         //if player collides with skelly weapon
         if (collision.gameObject.CompareTag("EnemyWeapon"))
         {
-            print("Skelly weapon touching player. Candamge is:  " +canDamage);
+            
+           
             if (canDamage)
             {                
                 print("skelly weapon is stil hurting player!!");
@@ -399,7 +399,7 @@ public class GerPlayerMovement : MonoBehaviour
             StartCoroutine(RestartGame());
         }
         canDamage = false;
-        print("candamge is false");
+        //print("candamge is false");
     }
 
     IEnumerator Flinch()
@@ -418,7 +418,7 @@ public class GerPlayerMovement : MonoBehaviour
         
         yield return new WaitForSeconds(0.5f);
         canDamage = true;
-        print("candamge is true");
+        //print("candamge is true");
         blood.Stop();
     }
 
