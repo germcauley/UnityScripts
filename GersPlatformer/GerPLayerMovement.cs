@@ -28,7 +28,7 @@ public class GerPlayerMovement : MonoBehaviour
     private bool jumped;
     private bool fall,walking = false;
     private bool canDamage = true;
-    private bool enemyWeaponStatus;
+   
 
     public float jumpPower = 5f;
     public AudioClip jumpClip;
@@ -42,11 +42,11 @@ public class GerPlayerMovement : MonoBehaviour
     public float flinchSpeed = 0.40f;
     private Vector2 movement;
     private bool rightHit,leftHit = false;
-
+    public GameObject hitSprite;
 
     void Awake()
     {
-        enemyWeaponStatus = GameObject.Find("Skeleton").GetComponent<FixedSkeleton>().weaponStatus;
+       
         myBody = GetComponent<Rigidbody2D>();        
         anim = GetComponent<Animator>();
         playerAudioData = GetComponent<AudioSource>();
@@ -373,7 +373,9 @@ public class GerPlayerMovement : MonoBehaviour
         
 
         lifeScoreCount--;
-        blood.Play();             
+        blood.Play();
+        GameObject clone = (GameObject)Instantiate(hitSprite, new Vector3(transform.position.x,transform.position.y, transform.position.z), Quaternion.identity);
+        Destroy(clone, 0.5f);
         playerAudioData.PlayOneShot(ouchClip, 0.5f);
         //Push player away to left from enemy if hit   from right           
         if (transform.position.x < collision.gameObject.transform.parent.gameObject.GetComponent<Transform>().position.x)
