@@ -23,7 +23,7 @@ public class GerPlayerMovement : MonoBehaviour
     public Transform right_Collision;
     private Vector3 left_Collision_Pos, right_Collision_Pos;
     public ParticleSystem blood;
-
+    public ParticleSystem dustParticle;   
     private bool isGrounded;
     private bool jumped;
     private bool fall, walking = false;
@@ -43,10 +43,8 @@ public class GerPlayerMovement : MonoBehaviour
     private Vector2 movement;
     private bool rightHit, leftHit = false;
     public GameObject hitSprite;    
-    //public GameObject dustSprite;
-    private float dustX = -0.3f;
-    private float dustY = -0.7f;
-    private bool dust = true;
+    
+    
 
     void Awake()
     {
@@ -62,11 +60,7 @@ public class GerPlayerMovement : MonoBehaviour
         //lifeScoreCount = 3;
         lifeText.text = "x" + lifeScoreCount;
         blood.Stop();
-
-
-        //Vars for player distance over time when hit
-
-
+        dustParticle.gameObject.SetActive(true);
     }
 
     // Start is called before the first frame update
@@ -86,21 +80,7 @@ public class GerPlayerMovement : MonoBehaviour
         PlayerJump();
         PlayerAttack();
         PlayerWalk();
-        PlayerSounds();
-
-        if (walking)
-        {
-            if (dust)
-            {
-                dust = false;
-                StartCoroutine(DustTrail());
-            }          
-           
-        }
-        else if (!walking)
-        {
-            ;
-        }
+        PlayerSounds();    
         
 
         //flinch movement, will move player left or right depending on where he was hit by enemy
@@ -173,8 +153,7 @@ public class GerPlayerMovement : MonoBehaviour
         else
         {
             myBody.velocity = new Vector2(0F, myBody.velocity.y);
-            anim.SetBool("isRunning", false);
-            toggleDust(false);
+            anim.SetBool("isRunning", false);            
             walking = false;
         }
 
@@ -195,7 +174,7 @@ public class GerPlayerMovement : MonoBehaviour
             if ((Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)))
             {
                 walking = true;
-
+                dustParticle.Play();
                 playerAudioData.loop = true;
                 playerAudioData.clip = walkclip;
                 playerAudioData.Play();
@@ -203,11 +182,7 @@ public class GerPlayerMovement : MonoBehaviour
             }
         }
         else if (!isGrounded)
-        {
-            //if (jumped ==false)
-            //{
-            //    playerAudioData.Stop();
-            //}
+        {            
 
             if ((Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)))
             {
@@ -227,9 +202,7 @@ public class GerPlayerMovement : MonoBehaviour
     }
     void CheckIfGrounded()
     {
-        isGrounded = Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.5f, groundLayer);
-        //print(isGrounded + "grounded!");
-        //fall = false;
+        isGrounded = Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.5f, groundLayer);       
         if (isGrounded)
 
         {
@@ -253,7 +226,7 @@ public class GerPlayerMovement : MonoBehaviour
             {
 
                 print("Player fall and land");
-                //anim.SetBool("Fall", true);
+                dustParticle.Play();
                 playerAudioData.PlayOneShot(landClip, 0.5F);
                 fall = false;
             }
@@ -261,7 +234,7 @@ public class GerPlayerMovement : MonoBehaviour
         }
         else if (!isGrounded)
         {
-            toggleDust(false);
+            
             if (!jumped)
             {
                 fall = true;
@@ -276,8 +249,7 @@ public class GerPlayerMovement : MonoBehaviour
             if (Input.GetKey(KeyCode.Space))
             {
                 playerAudioData.Stop();
-                myBody.velocity = new Vector2(myBody.velocity.x, jumpPower);                
-                toggleDust(false);
+                myBody.velocity = new Vector2(myBody.velocity.x, jumpPower);                           
                 playerAudioData.PlayOneShot(jumpClip, 0.5F);
                 anim.SetBool("Jump", true);
                 StartCoroutine(setJumped());
@@ -304,13 +276,7 @@ public class GerPlayerMovement : MonoBehaviour
         }
 
     }
-
-    IEnumerator DustTrail()    {
-        //set dust to active        
-        toggleDust(true);
-        yield return new WaitForSeconds(1.0f);
-        dust = true;
-    }
+  
     IEnumerator setJumped()
     {
         yield return new WaitForSeconds(0.5f);
@@ -327,11 +293,7 @@ public class GerPlayerMovement : MonoBehaviour
     }
 
 
-    void toggleDust(bool setDust)
-    {
-        gameObject.transform.GetChild(3).gameObject.SetActive(setDust);
-    }
-
+   
     void CheckCollision()
     {
         //print("check collision");
@@ -447,8 +409,7 @@ public class GerPlayerMovement : MonoBehaviour
     {
 
         yield return new WaitForSeconds(0.5f);
-        canDamage = true;
-        //print("candamge is true");
+        canDamage = true;        
         blood.Stop();
     }
 

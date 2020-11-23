@@ -5,14 +5,14 @@ using UnityEngine;
 public class DemonScript : MonoBehaviour
 {
 
-    public Transform parentPrefab;
+    
     private Animator anim;
     // Start is called before the first frame update
     void Start()
     {
-        parentPrefab = this.transform.parent;
-        anim = parentPrefab.gameObject.GetComponent<Animator>();
-        anim.SetBool("Attack", false);
+       
+        anim = gameObject.GetComponent<Animator>();
+        anim.SetBool("Attacking", false);
     }
 
     // Update is called once per frame
@@ -35,11 +35,19 @@ public class DemonScript : MonoBehaviour
         }
     }
 
-    void Attack()
+    public void Attack()
     {
-        
+        print("ATTTACKING!!!");
+        anim.SetBool("Attacking", true);
+        //anim.Play("DemonAttack");
     }
 
+
+    public void Idle()
+    {
+        print("IDLE!!!");
+        anim.SetBool("Attacking", false);
+    }
 
 
 
