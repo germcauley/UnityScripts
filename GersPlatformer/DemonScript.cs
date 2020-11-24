@@ -7,7 +7,16 @@ public class DemonScript : MonoBehaviour
 
     
     private Animator anim;
+    private GameObject Fireball;
     // Start is called before the first frame update
+
+
+
+    private void Awake()
+    {
+        Fireball = gameObject.transform.GetChild(1).gameObject;
+        Fireball.SetActive(false);
+    }
     void Start()
     {
        
@@ -40,6 +49,7 @@ public class DemonScript : MonoBehaviour
         print("ATTTACKING!!!");
         anim.SetBool("Attacking", true);
         //anim.Play("DemonAttack");
+       
     }
 
 
@@ -47,6 +57,18 @@ public class DemonScript : MonoBehaviour
     {
         print("IDLE!!!");
         anim.SetBool("Attacking", false);
+    }
+
+    public void FireOn()
+    {
+        Fireball.SetActive(true);
+        print("fire on!");
+    }
+
+    public void FireOff()
+    {
+        Fireball.SetActive(false);
+        print("fire off!");
     }
 
 
