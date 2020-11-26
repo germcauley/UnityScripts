@@ -8,6 +8,9 @@ public class DemonScript : MonoBehaviour
     
     private Animator anim;
     private GameObject Fireball;
+
+    public AudioClip attackClip;
+    AudioSource demonAudioData;
     // Start is called before the first frame update
 
 
@@ -16,6 +19,7 @@ public class DemonScript : MonoBehaviour
     {
         Fireball = gameObject.transform.GetChild(1).gameObject;
         Fireball.SetActive(false);
+        demonAudioData = GetComponent<AudioSource>();
     }
     void Start()
     {
@@ -48,8 +52,9 @@ public class DemonScript : MonoBehaviour
     {
         print("ATTTACKING!!!");
         anim.SetBool("Attacking", true);
+        
         //anim.Play("DemonAttack");
-       
+
     }
 
 
@@ -63,6 +68,7 @@ public class DemonScript : MonoBehaviour
     {
         Fireball.SetActive(true);
         print("fire on!");
+        demonAudioData.PlayOneShot(attackClip, 0.5f);
     }
 
     public void FireOff()
