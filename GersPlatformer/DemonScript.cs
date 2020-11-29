@@ -8,9 +8,11 @@ public class DemonScript : MonoBehaviour
     
     private Animator anim;
     private GameObject Fireball;
-
+    public int health = 3;
     public AudioClip attackClip;
+    public AudioClip ouchclip;
     AudioSource demonAudioData;
+    public GameObject hitSprite;
     // Start is called before the first frame update
 
 
@@ -33,24 +35,35 @@ public class DemonScript : MonoBehaviour
     {
         
     }
-   
 
+   
+    //NEED TO MOE THE PLAYER SWORD COLLIDER SIMILAR TO THE SKELETON AXE SO THAT IT ALLWAYS ENTERES THE DEMON COLLIDER OBJECT
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        print("Hit by player Sword");
-
-        if (collision.gameObject.CompareTag("Player"))
+        
+        if (collision.gameObject.CompareTag("Sword") && collision.gameObject.activeInHierarchy == true)
         {
-            
-            //parentPrefab.gameObject.GetComponent<FixedSkeleton>().canWalk = false;
-            //parentPrefab.gameObject.GetComponent<FixedSkeleton>().attacking = true;
-            //parentPrefab.gameObject.GetComponent<FixedSkeleton>().Attack();
+            anim.SetBool("Attacking", false);
+
+            //move player back slightly
+            print("demon body collider");
+            print("demon has been hit!!!!");
+            demonAudioData.PlayOneShot(ouchclip, 0.5f);
+
+            if (health == 0)
+            {
+                print("Demon dead");
+            }
+            else
+            {
+                health--;
+            }
         }
     }
 
     public void Attack()
     {
-        print("ATTTACKING!!!");
+        //print("ATTTACKING!!!");
         anim.SetBool("Attacking", true);
         
         //anim.Play("DemonAttack");
@@ -60,21 +73,21 @@ public class DemonScript : MonoBehaviour
 
     public void Idle()
     {
-        print("IDLE!!!");
+       // print("IDLE!!!");
         anim.SetBool("Attacking", false);
     }
 
     public void FireOn()
     {
         Fireball.SetActive(true);
-        print("fire on!");
+        //print("fire on!");
         demonAudioData.PlayOneShot(attackClip, 0.5f);
     }
 
     public void FireOff()
     {
         Fireball.SetActive(false);
-        print("fire off!");
+        //print("fire off!");
     }
 
 
