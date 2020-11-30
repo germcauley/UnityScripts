@@ -27,7 +27,7 @@ public class GerPlayerMovement : MonoBehaviour
     private bool isGrounded;
     private bool jumped;
     private bool fall, walking = false;
-    private bool canDamage = true;
+    private bool canDamage = true;    
 
 
     public float jumpPower = 5f;
@@ -36,13 +36,14 @@ public class GerPlayerMovement : MonoBehaviour
     public AudioClip landClip;
     public AudioClip walkclip;
     public AudioClip swordclip;
+    public AudioClip sizzleclip;
     AudioSource playerAudioData;
 
 
     public float flinchSpeed = 0.40f;
     private Vector2 movement;
     private bool rightHit, leftHit = false;
-    public GameObject hitSprite;    
+     
     
     
 
@@ -52,8 +53,13 @@ public class GerPlayerMovement : MonoBehaviour
         myBody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         playerAudioData = GetComponent<AudioSource>();
-
+        //set dust and hit and fire sprite to inactive
         gameObject.transform.GetChild(3).gameObject.SetActive(false);
+        gameObject.transform.GetChild(4).gameObject.SetActive(false);
+        gameObject.transform.GetChild(5).gameObject.SetActive(false);   
+        //make player weapon inactive
+        gameObject.transform.GetChild(1).gameObject.SetActive(false);
+
         lifeText = GameObject.Find("LivesText").GetComponent<Text>();
         gameOverText = GameObject.Find("GameOver").GetComponent<Text>();
         gameOverText.gameObject.SetActive(false);
@@ -66,8 +72,7 @@ public class GerPlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //make player weapon inactive
-        gameObject.transform.GetChild(1).gameObject.SetActive(false);
+        
 
     }
 
@@ -108,7 +113,7 @@ public class GerPlayerMovement : MonoBehaviour
         if (flincher == true)
         {
             moveCharacter(movement);
-        }
+        } 
 
 
     }
@@ -327,7 +332,17 @@ public class GerPlayerMovement : MonoBehaviour
             anim.SetBool("HasBeenHitIdle", true);
             if (canDamage)
             {
-                DamagePlayer(collision);
+                if (collision.gameObject.name == "Fire")
+                {
+                    DamagePlayer(collision,"Fire");
+                }
+                else 
+                {
+                    DamagePlayer(collision, "OTHER");
+                }
+                
+
+
                 StartCoroutine(WaitForDamage());
             }
             else
@@ -341,31 +356,51 @@ public class GerPlayerMovement : MonoBehaviour
     private void OnTriggerStay2D(Collider2D collision)
     {
         //if player collides with skelly weapon
-        if (collision.gameObject.CompareTag("EnemyWeapon"))
-        {
+        //if (collision.gameObject.CompareTag("EnemyWeapon"))
+        //{
 
 
-            if (canDamage)
-            {
-                print("skelly weapon is stil hurting player!!");
-            }
-            else
-            {
-                //print("SKELLY HIT BUT CANNOT DAMAGE PLAYER YET!");
-            }
-        }
+        //    if (canDamage)
+        //    {
+        //        print("skelly weapon is stil hurting player!!");
+        //    }
+        //    else
+        //    {
+        //        //print("SKELLY HIT BUT CANNOT DAMAGE PLAYER YET!");
+        //    }
+        //}
+        //if (collision.gameObject.CompareTag("EnemyWeapon"))
+        //{
+        //    print("player is burning!");
+
+        //    if (canDamage)
+        //    {
+                
+        //    }
+        //    else
+        //    {
+        //        //print("SKELLY HIT BUT CANNOT DAMAGE PLAYER YET!");
+        //    }
+        //}
     }
 
 
 
-    void DamagePlayer(Collider2D collision)
+    void DamagePlayer(Collider2D collision, string DamageType)
     {
+        lifeScoreCount--;        
 
+        if (DamageType == "Fire")
+        {
+            StartCoroutine(FireSprite());
+        }
+        else
+        {
+            blood.Play();
+            StartCoroutine(BloodSprite());
+        }
+        
 
-        lifeScoreCount--;
-        blood.Play();
-        GameObject clone = (GameObject)Instantiate(hitSprite, new Vector3(transform.position.x, transform.position.y, transform.position.z), Quaternion.identity);
-        Destroy(clone, 0.5f);
         playerAudioData.PlayOneShot(ouchClip, 0.5f);
         //Push player away to left from enemy if hit   from right           
         if (transform.position.x < collision.gameObject.transform.parent.gameObject.GetComponent<Transform>().position.x)
@@ -394,6 +429,23 @@ public class GerPlayerMovement : MonoBehaviour
         //print("candamge is false");
     }
 
+    IEnumerator BloodSprite()
+    {
+        gameObject.transform.GetChild(4).gameObject.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+        gameObject.transform.GetChild(4).gameObject.SetActive(false);
+    }
+
+    IEnumerator FireSprite()
+    {
+        gameObject.transform.GetChild(5).gameObject.SetActive(true);
+        
+        playerAudioData.PlayOneShot(sizzleclip, 0.3f);
+        yield return new WaitForSeconds(1.5f);       
+        gameObject.transform.GetChild(5).gameObject.SetActive(false);
+       
+    }
+
     IEnumerator Flinch()
     {
         flincher = true;
@@ -404,6 +456,7 @@ public class GerPlayerMovement : MonoBehaviour
         rightHit = false;
     }
 
+   
 
     IEnumerator WaitForDamage()
     {
