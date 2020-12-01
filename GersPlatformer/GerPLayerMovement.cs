@@ -60,11 +60,11 @@ public class GerPlayerMovement : MonoBehaviour
         //make player weapon inactive
         gameObject.transform.GetChild(1).gameObject.SetActive(false);
 
-        lifeText = GameObject.Find("LivesText").GetComponent<Text>();
-        gameOverText = GameObject.Find("GameOver").GetComponent<Text>();
-        gameOverText.gameObject.SetActive(false);
+        //lifeText = GameObject.Find("LivesText").GetComponent<Text>();
+        //gameOverText = GameObject.Find("GameOver").GetComponent<Text>();
+       // gameOverText.gameObject.SetActive(false);
         //lifeScoreCount = 3;
-        lifeText.text = "x" + lifeScoreCount;
+        //lifeText.text = "x" + lifeScoreCount;
         blood.Stop();
         dustParticle.gameObject.SetActive(true);
     }
