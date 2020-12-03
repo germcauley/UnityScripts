@@ -230,7 +230,7 @@ public class GerPlayerMovement : MonoBehaviour
             if (fall)
             {
 
-                print("Player fall and land");
+                //print("Player fall and land");
                 dustParticle.Play();
                 playerAudioData.PlayOneShot(landClip, 0.5F);
                 fall = false;
@@ -350,6 +350,11 @@ public class GerPlayerMovement : MonoBehaviour
                 //print("SKELLY HIT BUT CANNOT DAMAGE PLAYER YET!");
             }
         }
+        else if (collision.gameObject.CompareTag("Spikes"))
+        {
+            print("PLAYER IS DEAD!!!1");
+            PlayerDeath();
+        }
     }
 
 
@@ -422,7 +427,7 @@ public class GerPlayerMovement : MonoBehaviour
         }
         if (lifeScoreCount == 0)
         {
-            anim.Play("PlayerDeath", 0, 0f);
+            PlayerDeath();
             StartCoroutine(RestartGame());
         }
         canDamage = false;
@@ -434,6 +439,13 @@ public class GerPlayerMovement : MonoBehaviour
         gameObject.transform.GetChild(4).gameObject.SetActive(true);
         yield return new WaitForSeconds(0.5f);
         gameObject.transform.GetChild(4).gameObject.SetActive(false);
+    }
+
+    void PlayerDeath()
+    {
+        StartCoroutine(BloodSprite());
+        playerAudioData.PlayOneShot(ouchClip, 0.5f);
+        anim.Play("PlayerDeath", 0, 0f);        
     }
 
     IEnumerator FireSprite()
