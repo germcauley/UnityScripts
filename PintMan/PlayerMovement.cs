@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 public class PlayerMove : MonoBehaviour
 {
 
@@ -16,15 +16,12 @@ public class PlayerMove : MonoBehaviour
     private bool jumped;
     
     public float jumpPower = 5f;
-    public float flinchSpeed = 0.40f;
-    private bool rightHit, leftHit = false;
-    private bool flincher = false;
-    private Vector2 movement;
 
     public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip;
     AudioSource playerAudioData;
     void Awake()
     {
+        Time.timeScale = 1.0f;
         myBody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         playerAudioData = GetComponent<AudioSource>();
@@ -45,17 +42,6 @@ public class PlayerMove : MonoBehaviour
         {
             //print("Collided with groud raycast");
         }
-
-        //flinch movement, will move player left or right depending on where he was hit by enemy
-        if (leftHit)
-        {
-            movement = new Vector2(transform.position.x - 5, transform.position.y+2);
-            print("move");
-        }
-        else if (rightHit)
-        {
-            movement = new Vector2(transform.position.x + 5, transform.position.y+2);
-        }
     }
 
 
@@ -63,19 +49,11 @@ public class PlayerMove : MonoBehaviour
     void FixedUpdate()
     {
         PlayerWalk();
-
-        //controls player flinch when hes gets hit by enemy
-        if (flincher == true)
-        {
-            moveCharacter(movement);
-        }
+       
     }
 
 
-    void moveCharacter(Vector2 direction)
-    {//sets flich when character is hit
-        myBody.MovePosition((Vector2)transform.position + (direction * flinchSpeed * Time.deltaTime));
-    }
+ 
 
     void ChangeDirection(float direction)
     {
@@ -178,7 +156,7 @@ public class PlayerMove : MonoBehaviour
         else if (collision.gameObject.tag == "Spike" )
         {            
             playerAudioData.PlayOneShot(BastardsClip, 0.5f);
-            DamagePlayer(collision, "Spike");
+            StartCoroutine(Restart());
         }
         else if(collision.gameObject.tag == "Bullet")
         {
@@ -186,27 +164,23 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-    void DamagePlayer(Collider2D collision, string DamageType)
+
+    public void RestartScene()
     {
-        if (transform.position.x < collision.gameObject.transform.parent.gameObject.GetComponent<Transform>().position.x)
-        {
-            leftHit = true;
-            StartCoroutine(Flinch());
-        }
+        Scene thisScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(thisScene.name);
     }
 
 
     //CoRoutines
-    IEnumerator Flinch()
-    {
-        flincher = true;
-        yield return new WaitForSeconds(0.3f);
-        flincher = false;
-        anim.SetBool("HasBeenHitIdle", false);
-        leftHit = false;
-        rightHit = false;
-    }
 
+    IEnumerator Restart()
+    {
+        Time.timeScale = 0.0f;
+        playerAudioData.PlayOneShot(BastardsClip, 0.5f);
+        yield return new WaitForSecondsRealtime(2f);
+        RestartScene();
+    }
 
 
 
