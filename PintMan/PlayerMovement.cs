@@ -7,16 +7,14 @@ public class PlayerMove : MonoBehaviour
 {
 
     public float speed = 5f;
-
-    private Rigidbody2D myBody;    
+    public Vector2 movement;
+    public Rigidbody2D myBody;    
     public Transform groundCheckPosition;
     public LayerMask groundLayer;
     private Animator anim;
     private bool isGrounded;
-    private bool jumped;
-    
-    public float jumpPower = 5f;
-
+    private bool jumped,spikes=false;
+    public float jumpPower = 5f, moveForce = 5f;
     public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip;
     AudioSource playerAudioData;
     void Awake()
@@ -36,6 +34,8 @@ public class PlayerMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        movement = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+
         CheckIfGrounded();
         PlayerJump();
         if (Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.5f, groundLayer))
@@ -49,7 +49,13 @@ public class PlayerMove : MonoBehaviour
     void FixedUpdate()
     {
         PlayerWalk();
-       
+        if (spikes ==true)
+        {
+            Vector2 NewPosition = new Vector2(-100f, 4.0f);
+            moveCharacter(NewPosition);
+        }
+        
+
     }
 
 
@@ -134,35 +140,47 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-
-    //Called when PLayers collides with various objects
-    private void OnTriggerEnter2D(Collider2D collision)
+    void moveCharacter(Vector2 direction)
     {
-        if(collision.gameObject.tag == "Pint")
+        myBody.AddForce(direction * speed);
+    }
+
+    //Called when PLayers collides with various objects   
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        
+        if (collision.gameObject.tag == "Spike")
         {
-           
-            playerAudioData.PlayOneShot(PintsClip, 0.5f);
-        }
-        else if(collision.gameObject.tag == "Crisps")
-        {
-            
-            playerAudioData.PlayOneShot(CripsClip, 0.5f);
-        }
-        else if (collision.gameObject.tag == "Nuts")
-        {
-          
-            playerAudioData.PlayOneShot(NutsClip, 0.5f);
-        }
-        else if (collision.gameObject.tag == "Spike" )
-        {            
             playerAudioData.PlayOneShot(BastardsClip, 0.5f);
-            StartCoroutine(Restart());
+            //StartCoroutine(Restart());
+            StartCoroutine(Knockback());
+
         }
-        else if(collision.gameObject.tag == "Bullet")
+        else if (collision.gameObject.tag == "Bullet")
         {
             //playerAudioData.PlayOneShot(BastardsClip, 0.5f);
         }
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "Pint")
+        {
+
+            playerAudioData.PlayOneShot(PintsClip, 0.5f);
+        }
+        else if (collision.gameObject.tag == "Crisps")
+        {
+
+            playerAudioData.PlayOneShot(CripsClip, 0.5f);
+        }
+        else if (collision.gameObject.tag == "Nuts")
+        {
+
+            playerAudioData.PlayOneShot(NutsClip, 0.5f);
+        }
+    }
+
 
 
     public void RestartScene()
@@ -180,6 +198,13 @@ public class PlayerMove : MonoBehaviour
         playerAudioData.PlayOneShot(BastardsClip, 0.5f);
         yield return new WaitForSecondsRealtime(2f);
         RestartScene();
+    }
+
+    IEnumerator Knockback()
+    {
+        spikes = true;
+        yield return new WaitForSecondsRealtime(0.1f);
+        spikes = false;
     }
 
 
