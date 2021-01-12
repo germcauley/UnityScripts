@@ -51,7 +51,7 @@ public class PlayerMove : MonoBehaviour
         PlayerWalk();
         if (spikes ==true)
         {
-            Vector2 NewPosition = new Vector2(-100f, 4.0f);
+            Vector2 NewPosition = new Vector2(-100f, 20.0f);
             moveCharacter(NewPosition);
         }
         

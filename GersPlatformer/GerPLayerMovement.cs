@@ -25,7 +25,7 @@ public class GerPlayerMovement : MonoBehaviour
     public ParticleSystem blood;
     public ParticleSystem dustParticle;   
     private bool isGrounded;
-    private bool jumped;
+    private bool jumped, spikes = false;
     private bool fall, walking = false;
     private bool canDamage = true;    
 
@@ -42,7 +42,7 @@ public class GerPlayerMovement : MonoBehaviour
 
     public float flinchSpeed = 0.40f;
     private Vector2 movement;
-    private bool rightHit, leftHit = false;
+    private bool rightHit = false, leftHit = false;
      
     
     
@@ -91,12 +91,12 @@ public class GerPlayerMovement : MonoBehaviour
         //flinch movement, will move player left or right depending on where he was hit by enemy
         if (leftHit)
         {
-            movement = new Vector2(transform.position.x - 5, transform.position.y);
-            print("move");
+            StartCoroutine(Knockback());
+
         }
         else if (rightHit)
         {
-            movement = new Vector2(transform.position.x + 5, transform.position.y);
+            StartCoroutine(Knockback());
         }
 
 
@@ -110,17 +110,23 @@ public class GerPlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         //controls player flinch when hes gets hit by enemy
-        if (flincher == true)
+        if (spikes == true && leftHit ==true)
         {
-            moveCharacter(movement);
-        } 
+            Vector2 NewPosition = new Vector2(-100f, 20.0f);
+            moveCharacter(NewPosition);
+        }
+        else if (spikes == true && rightHit == true)
+        {
+            Vector2 NewPosition = new Vector2(+100f, 20.0f);
+            moveCharacter(NewPosition);
+        }
 
 
     }
 
     void moveCharacter(Vector2 direction)
     {//sets flich when character is hit
-        myBody.MovePosition((Vector2)transform.position + (direction * flinchSpeed * Time.deltaTime));
+        myBody.AddForce(direction * speed);
     }
 
     void PlayerWalk()
@@ -411,12 +417,12 @@ public class GerPlayerMovement : MonoBehaviour
         if (transform.position.x < collision.gameObject.transform.parent.gameObject.GetComponent<Transform>().position.x)
         {
             leftHit = true;
-            StartCoroutine(Flinch());
+            //StartCoroutine(Knockback());
         }
         else if (transform.position.x > collision.gameObject.transform.parent.gameObject.GetComponent<Transform>().position.x)
         {
             rightHit = true;
-            StartCoroutine(Flinch());
+            //StartCoroutine(Knockback());
         }
 
 
@@ -468,7 +474,16 @@ public class GerPlayerMovement : MonoBehaviour
         rightHit = false;
     }
 
-   
+    IEnumerator Knockback()
+    {
+        spikes = true;
+        yield return new WaitForSecondsRealtime(0.1f);
+        spikes = false;
+        anim.SetBool("HasBeenHitIdle", false);
+        leftHit = false;
+        rightHit = false;
+    }
+
 
     IEnumerator WaitForDamage()
     {
