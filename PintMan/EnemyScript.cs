@@ -10,7 +10,7 @@ public class enemyscript : MonoBehaviour
     private Animator anim;
     [SerializeField]
     GameObject bullet;
-
+    public GameObject Pintman;    
     public float fireRate;
     float nextFire;
 
@@ -21,6 +21,7 @@ public class enemyscript : MonoBehaviour
         fireRate = 2f;
         nextFire = Time.time;
         anim = gameObject.GetComponent<Animator>();
+        Pintman = GameObject.Find("PintMan");
     }
 
     // Update is called once per frame
@@ -34,6 +35,16 @@ public class enemyscript : MonoBehaviour
             //print("Collided with enemy");
         }
 
+        if (transform.position.x > Pintman.transform.position.x)
+        {
+            print("ll");
+            transform.localScale = new Vector2(-0.15f, 0.15f);
+        }
+        else if (transform.position.x < Pintman.transform.position.x)
+        {
+            print("aaa");
+            transform.localScale = new Vector2(0.15f, 0.15f);
+        }
         //CheckIfTimeToFire();
     }
 
