@@ -37,12 +37,12 @@ public class enemyscript : MonoBehaviour
 
         if (transform.position.x > Pintman.transform.position.x)
         {
-            print("ll");
+            
             transform.localScale = new Vector2(-0.15f, 0.15f);
         }
         else if (transform.position.x < Pintman.transform.position.x)
         {
-            print("aaa");
+           
             transform.localScale = new Vector2(0.15f, 0.15f);
         }
         //CheckIfTimeToFire();
@@ -71,17 +71,24 @@ public class enemyscript : MonoBehaviour
             if (topHit.gameObject.tag == MyTags.PLAYER_TAG)
             {
                 print("Enemy hit!!!");
+                 
                 if (!stunned)
                 {
                     topHit.gameObject.GetComponent<Rigidbody2D>().velocity =
                 new Vector2(topHit.gameObject.GetComponent<Rigidbody2D>().velocity.x, 7f);
+                StartCoroutine(DestroyEnemy());   
                 }
             }          
         }
     }
 
 
+    IEnumerator DestroyEnemy()
+    {
 
+        yield return new WaitForSecondsRealtime(1f);
+        gameObject.SetActive(false);
+    }
 
 
     }//class
