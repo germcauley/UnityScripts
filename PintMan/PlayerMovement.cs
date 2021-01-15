@@ -11,6 +11,7 @@ public class PlayerMove : MonoBehaviour
     public Rigidbody2D myBody;    
     public Transform groundCheckPosition;
     public LayerMask groundLayer;
+    public static float healthAmount;
     private Animator anim;
     private bool isGrounded;
     private bool jumped,spikes=false;
@@ -28,6 +29,7 @@ public class PlayerMove : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        healthAmount = 1;
         Debug.Log("started");
     }
 
@@ -41,6 +43,11 @@ public class PlayerMove : MonoBehaviour
         if (Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.5f, groundLayer))
         {
             //print("Collided with groud raycast");
+        }
+
+        if (healthAmount<0)
+        {
+            Destroy(gameObject);
         }
     }
 
@@ -152,6 +159,7 @@ public class PlayerMove : MonoBehaviour
         if (collision.gameObject.tag == "Spike")
         {
             playerAudioData.PlayOneShot(BastardsClip, 0.5f);
+            healthAmount -= 0.1f;
             //StartCoroutine(Restart());
             StartCoroutine(Knockback());
 
@@ -178,6 +186,11 @@ public class PlayerMove : MonoBehaviour
         {
 
             playerAudioData.PlayOneShot(NutsClip, 0.5f);
+        }
+        else if (collision.gameObject.tag == "Water")
+        {
+            
+            StartCoroutine(Restart());
         }
     }
 
