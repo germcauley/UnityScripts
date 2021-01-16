@@ -18,6 +18,15 @@ public class PlayerMove : MonoBehaviour
     public float jumpPower = 5f, moveForce = 5f;
     public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip;
     AudioSource playerAudioData;
+    
+    // Reference to Sprite Renderer component
+    private Renderer rend;
+
+    // Color value that we can set in Inspector
+    // It's White by default
+    [SerializeField]
+    private Color colorToTurnTo = Color.white;
+
     void Awake()
     {
         Time.timeScale = 1.0f;
@@ -27,10 +36,15 @@ public class PlayerMove : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         healthAmount = 1;
-        Debug.Log("started");
+        // Assign Renderer component to rend variable
+        rend = GetComponent<Renderer>();
+
+        // Change sprite color to selected color
+        
+
     }
 
     // Update is called once per frame
@@ -160,8 +174,10 @@ public class PlayerMove : MonoBehaviour
         {
             playerAudioData.PlayOneShot(BastardsClip, 0.5f);
             healthAmount -= 0.1f;
+            StartCoroutine(DamageColour());
             //StartCoroutine(Restart());
             StartCoroutine(Knockback());
+
 
         }
         else if (collision.gameObject.tag == "Bullet")
@@ -220,7 +236,16 @@ public class PlayerMove : MonoBehaviour
         spikes = false;
     }
 
-
+    IEnumerator DamageColour()
+    {
+        rend.material.color = colorToTurnTo;
+        yield return new WaitForSecondsRealtime(0.2f);
+        rend.material.color = Color.white;
+        yield return new WaitForSecondsRealtime(0.2f);
+        rend.material.color = colorToTurnTo;
+        yield return new WaitForSecondsRealtime(0.2f);
+        rend.material.color = Color.white;
+    }
 
 
 
