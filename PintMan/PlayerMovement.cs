@@ -5,13 +5,14 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 public class PlayerMove : MonoBehaviour
 {
-
+    public int maxHealth = 10;
+    public NewHealthBarScript healthBar;
+    public int currentHealth;
     public float speed = 5f;
     public Vector2 movement;
-    public Rigidbody2D myBody;    
+    private Rigidbody2D myBody;    
     public Transform groundCheckPosition;
-    public LayerMask groundLayer;
-    public static float healthAmount;
+    public LayerMask groundLayer;    
     private Animator anim;
     private bool isGrounded;
     private bool jumped,spikes=false;
@@ -38,7 +39,8 @@ public class PlayerMove : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        healthAmount = 1;
+        currentHealth = maxHealth;
+        healthBar.SetMaxHealth(maxHealth);
         // Assign Renderer component to rend variable
         rend = GetComponent<Renderer>();
 
@@ -59,7 +61,7 @@ public class PlayerMove : MonoBehaviour
             //print("Collided with groud raycast");
         }
 
-        if (healthAmount<0)
+        if (currentHealth <=0)
         {
             Destroy(gameObject);
         }
@@ -173,7 +175,8 @@ public class PlayerMove : MonoBehaviour
         if (collision.gameObject.tag == "Spike")
         {
             playerAudioData.PlayOneShot(BastardsClip, 0.5f);
-            healthAmount -= 0.1f;
+            currentHealth -= 1;
+            healthBar.SetHealth(currentHealth);
             StartCoroutine(DamageColour());
             //StartCoroutine(Restart());
             StartCoroutine(Knockback());
