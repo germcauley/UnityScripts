@@ -171,40 +171,41 @@ public class PlayerMove : MonoBehaviour
     //Called when PLayers collides with various objects   
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        
+        //Using collider here as player cant fal thorugh spikes
         if (collision.gameObject.tag == "Spike")
         {
-            playerAudioData.PlayOneShot(BastardsClip, 0.5f);
-            currentHealth -= 1;
-            healthBar.SetHealth(currentHealth);
-            StartCoroutine(DamageColour());
-            //StartCoroutine(Restart());
-            StartCoroutine(Knockback());
 
+            StartCoroutine(DamagePlayer());
 
-        }
-        else if (collision.gameObject.tag == "Bullet")
-        {
-            //playerAudioData.PlayOneShot(BastardsClip, 0.5f);
-        }
+        }      
+        
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Pint")
         {
-
+            StartCoroutine(IncreaseHP());
             playerAudioData.PlayOneShot(PintsClip, 0.5f);
         }
         else if (collision.gameObject.tag == "Crisps")
         {
-
+            StartCoroutine(IncreaseHP());
             playerAudioData.PlayOneShot(CripsClip, 0.5f);
         }
         else if (collision.gameObject.tag == "Nuts")
         {
-
+            StartCoroutine(IncreaseHP());
             playerAudioData.PlayOneShot(NutsClip, 0.5f);
+        }
+        else if (collision.gameObject.tag == "Bullet")
+        {
+            Destroy(collision.gameObject);
+            StartCoroutine(DamagePlayer());
+        }
+        else if (collision.gameObject.tag == "Virus")
+        {
+            StartCoroutine(DamagePlayer());
         }
         else if (collision.gameObject.tag == "Water")
         {
@@ -250,8 +251,23 @@ public class PlayerMove : MonoBehaviour
         rend.material.color = Color.white;
     }
 
+    IEnumerator IncreaseHP()
+    {
+        yield return new WaitForSecondsRealtime(0.1f);
+        currentHealth += 1;
+        healthBar.SetHealth(currentHealth);
+    }
 
-
+    IEnumerator DamagePlayer()
+    {
+        yield return new WaitForSecondsRealtime(0.1f);
+        playerAudioData.PlayOneShot(BastardsClip, 0.5f);
+        currentHealth -= 1;
+        healthBar.SetHealth(currentHealth);
+        StartCoroutine(DamageColour());
+        //StartCoroutine(Restart());
+        StartCoroutine(Knockback());
+    }
 
 
 

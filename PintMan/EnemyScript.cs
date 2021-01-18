@@ -13,8 +13,11 @@ public class enemyscript : MonoBehaviour
     public GameObject Pintman;    
     public float fireRate;
     float nextFire;
+    public AudioClip DeathClip, GunClip;
+    AudioSource enemyAudioData;
 
-    // Start is called before the first frame update
+
+    
     void Start()
     {
        // anim.Play("GardaIdle");
@@ -22,9 +25,10 @@ public class enemyscript : MonoBehaviour
         nextFire = Time.time;
         anim = gameObject.GetComponent<Animator>();
         Pintman = GameObject.Find("PintMan");
+        enemyAudioData = GetComponent<AudioSource>();
     }
 
-    // Update is called once per frame
+    
     void Update()
     {
 
@@ -56,7 +60,8 @@ public class enemyscript : MonoBehaviour
         //    nextFire = Time.time + fireRate;
         //}       
             Instantiate(bullet, transform.position, Quaternion.identity);
-            nextFire = Time.time + fireRate;        
+        enemyAudioData.PlayOneShot(GunClip, 0.5f);
+        nextFire = Time.time + fireRate;        
     }
 
     // check for player collision using raycast
@@ -71,7 +76,7 @@ public class enemyscript : MonoBehaviour
             if (topHit.gameObject.tag == MyTags.PLAYER_TAG)
             {
                 print("Enemy hit!!!");
-                 
+                
                 if (!stunned)
                 {
                     topHit.gameObject.GetComponent<Rigidbody2D>().velocity =
@@ -85,8 +90,10 @@ public class enemyscript : MonoBehaviour
 
     IEnumerator DestroyEnemy()
     {
-
-        yield return new WaitForSecondsRealtime(1f);
+        
+        
+        enemyAudioData.PlayOneShot(DeathClip, 0.1f);
+        yield return new WaitForSecondsRealtime(0.7f);
         gameObject.SetActive(false);
     }
 
