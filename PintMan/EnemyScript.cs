@@ -6,6 +6,7 @@ public class enemyscript : MonoBehaviour
 {
     public Transform EnemyHeadCollider;
     public LayerMask playerLayer;
+    private GameObject HitFX; 
     private bool stunned = false;
     private Animator anim;
     [SerializeField]
@@ -24,6 +25,8 @@ public class enemyscript : MonoBehaviour
         fireRate = 2f;
         nextFire = Time.time;
         anim = gameObject.GetComponent<Animator>();
+        HitFX = gameObject.transform.GetChild(2).gameObject;
+        HitFX.SetActive(false);
         Pintman = GameObject.Find("PintMan");
         enemyAudioData = GetComponent<AudioSource>();
     }
@@ -90,8 +93,8 @@ public class enemyscript : MonoBehaviour
 
     IEnumerator DestroyEnemy()
     {
-        
-        
+
+        HitFX.SetActive(true);
         enemyAudioData.PlayOneShot(DeathClip, 0.1f);
         yield return new WaitForSecondsRealtime(0.7f);
         gameObject.SetActive(false);
