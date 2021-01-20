@@ -177,8 +177,19 @@ public class PlayerMove : MonoBehaviour
 
             StartCoroutine(DamagePlayer());
 
-        }      
-        
+        }
+        else if (collision.gameObject.tag == "Virus")
+        {
+            StartCoroutine(DamagePlayer());
+        }
+        else if (collision.gameObject.name == "GardaWalk")
+        {
+            print("TAKEMONEY");
+        }
+        else if (collision.gameObject.name == "ENDLEVEL")
+        {
+            StartCoroutine(Restart());
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -202,16 +213,13 @@ public class PlayerMove : MonoBehaviour
         {
             Destroy(collision.gameObject);
             StartCoroutine(DamagePlayer());
-        }
-        else if (collision.gameObject.tag == "Virus")
-        {
-            StartCoroutine(DamagePlayer());
-        }
+        }       
         else if (collision.gameObject.tag == "Water")
         {
             
             StartCoroutine(Restart());
         }
+        
     }
 
 
@@ -260,10 +268,10 @@ public class PlayerMove : MonoBehaviour
 
     IEnumerator DamagePlayer()
     {
-        yield return new WaitForSecondsRealtime(0.1f);
-        playerAudioData.PlayOneShot(BastardsClip, 0.5f);
         currentHealth -= 1;
         healthBar.SetHealth(currentHealth);
+        yield return new WaitForSecondsRealtime(0.1f);
+        playerAudioData.PlayOneShot(BastardsClip, 0.5f);        
         StartCoroutine(DamageColour());
         //StartCoroutine(Restart());
         StartCoroutine(Knockback());

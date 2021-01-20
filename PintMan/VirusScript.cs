@@ -4,28 +4,46 @@ using UnityEngine;
 
 public class VirusScript : MonoBehaviour
 {
-    private bool moveUp = true;    
+    private bool move = true;    
     public float moveSpeed = 1f;
+    public bool Vertical, Horizontal;
       
 
    
     void Update()
     {
 
-        // Use this for initialization
-        if (moveUp)
+        if (Vertical)
         {
-            //determines movement of object move Y axis only in this case
-            transform.Translate(0, 2 * Time.deltaTime * moveSpeed, 0);
-            //transform.localScale = new Vector2(6, 6);
-            
+            // Use this for initialization
+            if (move)
+            {
+              
+                transform.Translate(0, 2 * Time.deltaTime * moveSpeed, 0);
+                          }
+
+            else if (!move)
+            {
+                transform.Translate(0, -2 * Time.deltaTime * moveSpeed, 0);            
+
+            }
         }
 
-        else if (!moveUp)
+        if (Horizontal)
         {
-            transform.Translate(0, -2 * Time.deltaTime * moveSpeed, 0);
-            //transform.localScale = new Vector2(-6, 6);
-            
+            // Use this for initialization
+            if (move)
+            {
+               
+                transform.Translate(2 * Time.deltaTime * moveSpeed,0 , 0);          
+
+            }
+
+            else if (!move)
+            {
+                transform.Translate(-2 * Time.deltaTime * moveSpeed, 0, 0);              
+
+            }
         }
 
     }
@@ -33,51 +51,44 @@ public class VirusScript : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        print("patrol point!");
+        
         //patrol script
         if (collision.gameObject.CompareTag("PatrolPoint"))
         {
 
-            if (moveUp)
+            if (move)
             {
-                moveUp = false;
+                move = false;
 
             }
             else
             {
-                moveUp = true;
+                move = true;
 
             }
         }
         
     }
 
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        print("patrol point!");
+        print("virus");
         //patrol script
         if (collision.gameObject.CompareTag("PatrolPoint"))
         {
 
-            if (moveUp)
+            if (move)
             {
-                moveUp = false;
+                move = false;
 
             }
             else
             {
-                moveUp = true;
+                move = true;
 
             }
         }
-
     }
 
-
-
-
-
-
-
-
-    }//class
+}//class
