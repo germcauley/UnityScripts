@@ -9,9 +9,18 @@ public class GardaWalkScript : MonoBehaviour
     private bool moveLeft = true;
     public float moveSpeed = 1f;
     private bool stunned = false;
+    private GameObject HitFX;
+    public AudioClip DeathClip;
+    AudioSource enemyAudioData;
+
+
+
+
     void Start()
     {
-        
+        HitFX = gameObject.transform.GetChild(1).gameObject;       
+        enemyAudioData = GetComponent<AudioSource>();
+        HitFX.SetActive(false);
     }
 
    
@@ -42,7 +51,7 @@ public class GardaWalkScript : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        print("garda patrol point!");
+        
         //patrol script
         if (collision.gameObject.CompareTag("PatrolPoint"))
         {
@@ -69,8 +78,7 @@ public class GardaWalkScript : MonoBehaviour
         if (topHit != null)
         {
             if (topHit.gameObject.tag == MyTags.PLAYER_TAG)
-            {
-                print("Enemy hit!!!");
+            {                
 
                 if (!stunned)
                 {
@@ -84,7 +92,8 @@ public class GardaWalkScript : MonoBehaviour
     IEnumerator DestroyEnemy()
     {
 
-        //HitFX.SetActive(true);
+        //enemyAudioData.PlayOneShot(DeathClip, 0.5f);
+        HitFX.SetActive(true);
         //enemyAudioData.PlayOneShot(DeathClip, 0.1f);
         yield return new WaitForSecondsRealtime(0.7f);
         gameObject.SetActive(false);

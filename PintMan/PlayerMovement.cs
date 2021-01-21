@@ -19,7 +19,8 @@ public class PlayerMove : MonoBehaviour
     public float jumpPower = 5f, moveForce = 5f;
     public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip;
     AudioSource playerAudioData;
-    
+
+    private GameObject cam;
     // Reference to Sprite Renderer component
     private Renderer rend;
 
@@ -30,6 +31,7 @@ public class PlayerMove : MonoBehaviour
 
     void Awake()
     {
+        cam = GameObject.Find("CameraShaker");
         Time.timeScale = 1.0f;
         myBody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
@@ -53,7 +55,7 @@ public class PlayerMove : MonoBehaviour
     void Update()
     {
         movement = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-
+        CameraShake();
         CheckIfGrounded();
         PlayerJump();
         if (Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.5f, groundLayer))
@@ -82,8 +84,14 @@ public class PlayerMove : MonoBehaviour
     }
 
 
- 
+    void CameraShake()
+    {
+        if (Input.GetKey(KeyCode.G))
+        {
+            cam.GetComponent<CameraShakeScript>().ShakeIt();
+        }
 
+    }
     void ChangeDirection(float direction)
     {
         Vector3 tempScale = transform.localScale;
@@ -194,17 +202,17 @@ public class PlayerMove : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Pint")
+        if (collision.gameObject.tag == MyTags.PINT_TAG)
         {
             StartCoroutine(IncreaseHP());
             playerAudioData.PlayOneShot(PintsClip, 0.5f);
         }
-        else if (collision.gameObject.tag == "Crisps")
+        else if (collision.gameObject.tag == MyTags.CRISPS_TAG)
         {
             StartCoroutine(IncreaseHP());
             playerAudioData.PlayOneShot(CripsClip, 0.5f);
         }
-        else if (collision.gameObject.tag == "Nuts")
+        else if (collision.gameObject.tag == MyTags.NUTS_TAG)
         {
             StartCoroutine(IncreaseHP());
             playerAudioData.PlayOneShot(NutsClip, 0.5f);
