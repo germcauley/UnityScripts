@@ -17,17 +17,20 @@ public class PlayerMove : MonoBehaviour
     private bool isGrounded;
     private bool jumped,spikes=false;
     public float jumpPower = 5f, moveForce = 5f;
-    public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip;
+    public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip,JumpClip;
     AudioSource playerAudioData;
-
-    private GameObject cam;
+     
+    private GameObject cam, Overlay;
     // Reference to Sprite Renderer component
-    private Renderer rend;
+    private Renderer rend, overlayRend;
 
     // Color value that we can set in Inspector
     // It's White by default
     [SerializeField]
     private Color colorToTurnTo = Color.white;
+
+    [SerializeField]
+    private Color OverlaycolorToTurnTo = Color.white;
 
     void Awake()
     {
@@ -36,6 +39,7 @@ public class PlayerMove : MonoBehaviour
         myBody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         playerAudioData = GetComponent<AudioSource>();
+        
     }
 
     // Start is called before the first frame update
@@ -45,9 +49,10 @@ public class PlayerMove : MonoBehaviour
         healthBar.SetMaxHealth(maxHealth);
         // Assign Renderer component to rend variable
         rend = GetComponent<Renderer>();
+        Overlay = GameObject.Find("Overlay");
+        overlayRend = Overlay.GetComponent<Renderer>();
 
-        // Change sprite color to selected color
-        
+
 
     }
 
@@ -156,7 +161,7 @@ public class PlayerMove : MonoBehaviour
             {
                 jumped = true;
                 myBody.velocity = new Vector2(myBody.velocity.x, jumpPower);
-
+                playerAudioData.PlayOneShot(JumpClip, 0.1f);
                 //anim.SetBool("Jump", true);
                 Console.WriteLine("Player jump");
 
@@ -206,6 +211,8 @@ public class PlayerMove : MonoBehaviour
         {
             StartCoroutine(IncreaseHP());
             playerAudioData.PlayOneShot(PintsClip, 0.5f);
+            overlayRend.material.color = OverlaycolorToTurnTo;
+            
         }
         else if (collision.gameObject.tag == MyTags.CRISPS_TAG)
         {
