@@ -5,21 +5,19 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 public class PlayerMove : MonoBehaviour
 {
-    public int maxHealth = 10;
+    
     public NewHealthBarScript healthBar;
-    public int currentHealth;
-    public float speed = 5f;
+    public int currentHealth, maxHealth = 10;
+    public float speed = 5f, jumpPower = 5f, moveForce = 5f;
     public Vector2 movement;
     private Rigidbody2D myBody;    
     public Transform groundCheckPosition;
     public LayerMask groundLayer;    
     private Animator anim;
-    private bool isGrounded;
-    private bool jumped,spikes=false;
-    public float jumpPower = 5f, moveForce = 5f;
+    private bool jumped, isGrounded,knockback = false,canDamage=true,rhEnemyHit=true;
     public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip,JumpClip;
     AudioSource playerAudioData;
-     
+    //Reference to camera and overlay sprite unused
     private GameObject cam, Overlay;
     // Reference to Sprite Renderer component
     private Renderer rend, overlayRend;
@@ -29,8 +27,8 @@ public class PlayerMove : MonoBehaviour
     [SerializeField]
     private Color colorToTurnTo = Color.white;
 
-    [SerializeField]
-    private Color OverlaycolorToTurnTo = Color.white;
+    //[SerializeField]
+    //private Color OverlaycolorToTurnTo = Color.white;
 
     void Awake()
     {
@@ -79,13 +77,20 @@ public class PlayerMove : MonoBehaviour
     void FixedUpdate()
     {
         PlayerWalk();
-        if (spikes ==true)
-        {
-            Vector2 NewPosition = new Vector2(-100f, 20.0f);
-            moveCharacter(NewPosition);
-        }
-        
 
+        if (knockback == true)
+        {
+            if (!rhEnemyHit)
+            {
+                Vector2 NewPosition = new Vector2(-100f, 10.0f);
+                moveCharacter(NewPosition);
+            }
+            else
+            {
+                Vector2 NewPosition = new Vector2(100f, 10.0f);
+                moveCharacter(NewPosition);
+            }         
+        }
     }
 
 
@@ -184,24 +189,47 @@ public class PlayerMove : MonoBehaviour
     //Called when PLayers collides with various objects   
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        //Using collider here as player cant fal thorugh spikes
-        if (collision.gameObject.tag == "Spike")
+        if (canDamage)
         {
+            //set direction of enemy attack, this will determine playerknockback direction
+             if (collision.gameObject.transform.position.x > gameObject.transform.position.x)
+            {
 
-            StartCoroutine(DamagePlayer());
+                rhEnemyHit = false;
+            }
+            else if (collision.gameObject.transform.position.x < gameObject.transform.position.x)
+            {
 
+                rhEnemyHit = true;
+            }
+
+            
+            if (collision.gameObject.tag == "Spike")
+            {
+
+                StartCoroutine(DamagePlayer());
+
+            }
+            else if (collision.gameObject.tag == "Virus")
+            {
+                Vector2 NewPosition = new Vector2(-100f, 10.0f);
+                moveCharacter(NewPosition);
+
+                StartCoroutine(DamagePlayer());
+            }
+            else if (collision.gameObject.name == "GardaWalk")
+            {
+                print("TAKEMONEY");
+                //take 1 pint from score and dage -1 ,if pints are 0 damage -2
+            }
+            else if (collision.gameObject.name == "ENDLEVEL")
+            {
+                StartCoroutine(Restart());
+            }
         }
-        else if (collision.gameObject.tag == "Virus")
+        else
         {
-            StartCoroutine(DamagePlayer());
-        }
-        else if (collision.gameObject.name == "GardaWalk")
-        {
-            print("TAKEMONEY");
-        }
-        else if (collision.gameObject.name == "ENDLEVEL")
-        {
-            StartCoroutine(Restart());
+            print("Invincilbe, cannot damage");
         }
     }
 
@@ -211,7 +239,7 @@ public class PlayerMove : MonoBehaviour
         {
             StartCoroutine(IncreaseHP());
             playerAudioData.PlayOneShot(PintsClip, 0.5f);
-            overlayRend.material.color = OverlaycolorToTurnTo;
+            //overlayRend.material.color = OverlaycolorToTurnTo;
             
         }
         else if (collision.gameObject.tag == MyTags.CRISPS_TAG)
@@ -258,9 +286,9 @@ public class PlayerMove : MonoBehaviour
 
     IEnumerator Knockback()
     {
-        spikes = true;
+        knockback = true;
         yield return new WaitForSecondsRealtime(0.1f);
-        spikes = false;
+        knockback = false;       
     }
 
     IEnumerator DamageColour()
@@ -283,13 +311,20 @@ public class PlayerMove : MonoBehaviour
 
     IEnumerator DamagePlayer()
     {
+        StartCoroutine(Invincible());
         currentHealth -= 1;
         healthBar.SetHealth(currentHealth);
         yield return new WaitForSecondsRealtime(0.1f);
         playerAudioData.PlayOneShot(BastardsClip, 0.5f);        
-        StartCoroutine(DamageColour());
-        //StartCoroutine(Restart());
+        StartCoroutine(DamageColour());        
         StartCoroutine(Knockback());
+    }
+
+    IEnumerator Invincible()
+    {
+        canDamage = false;
+        yield return new WaitForSecondsRealtime(0.7f);
+        canDamage = true;
     }
 
 
