@@ -58,7 +58,7 @@ public class PlayerMove : MonoBehaviour
     void Update()
     {
         movement = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        CameraShake();
+        
         CheckIfGrounded();
         PlayerJump();
         if (Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.5f, groundLayer))
@@ -96,11 +96,8 @@ public class PlayerMove : MonoBehaviour
 
     void CameraShake()
     {
-        if (Input.GetKey(KeyCode.G))
-        {
-            cam.GetComponent<CameraShakeScript>().ShakeIt();
-        }
-
+        
+        cam.GetComponent<CameraShakeScript>().ShakeIt();       
     }
     void ChangeDirection(float direction)
     {
@@ -206,7 +203,7 @@ public class PlayerMove : MonoBehaviour
             
             if (collision.gameObject.tag == "Spike")
             {
-
+                CameraShake();
                 StartCoroutine(DamagePlayer());
 
             }
@@ -255,6 +252,7 @@ public class PlayerMove : MonoBehaviour
         else if (collision.gameObject.tag == "Bullet")
         {
             Destroy(collision.gameObject);
+            CameraShake();
             StartCoroutine(DamagePlayer());
         }       
         else if (collision.gameObject.tag == "Water")
