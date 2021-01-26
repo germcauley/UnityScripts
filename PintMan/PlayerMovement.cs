@@ -14,6 +14,7 @@ public class PlayerMove : MonoBehaviour
     public Transform groundCheckPosition;
     public LayerMask groundLayer;    
     private Animator anim;
+    public GameObject Hitfx;    
     private bool jumped, isGrounded,knockback = false,canDamage=true,rhEnemyHit=true;
     public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip,JumpClip;
     AudioSource playerAudioData;
@@ -32,6 +33,7 @@ public class PlayerMove : MonoBehaviour
 
     void Awake()
     {
+        
         cam = GameObject.Find("CameraShaker");
         Time.timeScale = 1.0f;
         myBody = GetComponent<Rigidbody2D>();
@@ -251,6 +253,9 @@ public class PlayerMove : MonoBehaviour
         }
         else if (collision.gameObject.tag == "Bullet")
         {
+
+            Instantiate(Hitfx, new Vector3(collision.transform.position.x,
+                    collision.transform.position.y - 1f, collision.transform.position.z), Quaternion.identity);
             Destroy(collision.gameObject);
             CameraShake();
             StartCoroutine(DamagePlayer());
