@@ -8,7 +8,7 @@ public class PlayerMove : MonoBehaviour
     
     public NewHealthBarScript healthBar;
     public int currentHealth, maxHealth = 10;
-    public float speed = 5f, jumpPower = 5f, moveForce = 5f;
+    public float speed = 5f, jumpPower = 5f, moveForce = 5f, groundCheckDistance = 0.1f ;
     public Vector2 movement;
     private Rigidbody2D myBody;    
     public Transform groundCheckPosition;
@@ -16,7 +16,7 @@ public class PlayerMove : MonoBehaviour
     private Animator anim;
     public GameObject Hitfx;    
     private bool jumped, isGrounded,knockback = false,canDamage=true,rhEnemyHit=true;
-    public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip,JumpClip;
+    public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip,JumpClip,CoughClip;
     AudioSource playerAudioData;
     //Reference to camera and overlay sprite unused
     private GameObject cam, Overlay;
@@ -98,7 +98,7 @@ public class PlayerMove : MonoBehaviour
 
     void CameraShake()
     {
-        
+        print("shaking camera!");   
         cam.GetComponent<CameraShakeScript>().ShakeIt();       
     }
     void ChangeDirection(float direction)
@@ -110,7 +110,7 @@ public class PlayerMove : MonoBehaviour
 
     void CheckIfGrounded()
     {
-        isGrounded = Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.1f, groundLayer);       
+        isGrounded = Physics2D.Raycast(groundCheckPosition.position, Vector2.down, groundCheckDistance, groundLayer);       
 
         Console.WriteLine("ground");
 
@@ -124,6 +124,8 @@ public class PlayerMove : MonoBehaviour
             }
         }       
     }
+
+
 
 
     void PlayerWalk()
@@ -214,12 +216,19 @@ public class PlayerMove : MonoBehaviour
                 Vector2 NewPosition = new Vector2(-100f, 10.0f);
                 moveCharacter(NewPosition);
 
-                StartCoroutine(DamagePlayer());
+                StartCoroutine(InfectPlayer());
             }
             else if (collision.gameObject.name == "GardaWalk")
             {
                 print("TAKEMONEY");
                 //take 1 pint from score and dage -1 ,if pints are 0 damage -2
+            }
+            else if (collision.gameObject.tag == MyTags.MOVING_PLATFORM_TAG)
+            {
+                
+                gameObject.transform.SetParent(collision.gameObject.transform);                
+                Debug.Log("On platform.");              
+
             }
             else if (collision.gameObject.name == "ENDLEVEL")
             {
@@ -229,6 +238,18 @@ public class PlayerMove : MonoBehaviour
         else
         {
             print("Invincilbe, cannot damage");
+        }
+    }
+
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+         if (collision.gameObject.tag == MyTags.MOVING_PLATFORM_TAG)
+        {
+
+            gameObject.transform.parent = null;
+            Debug.Log("Not on platform.");
+
         }
     }
 
@@ -265,7 +286,8 @@ public class PlayerMove : MonoBehaviour
             
             StartCoroutine(Restart());
         }
-        
+       
+
     }
 
 
@@ -305,6 +327,17 @@ public class PlayerMove : MonoBehaviour
         rend.material.color = Color.white;
     }
 
+    IEnumerator VirusDamageColour()
+    {
+        rend.material.color = Color.green;
+        yield return new WaitForSecondsRealtime(0.2f);
+        rend.material.color = Color.white;
+        yield return new WaitForSecondsRealtime(0.2f);
+        rend.material.color = Color.green;
+        yield return new WaitForSecondsRealtime(0.2f);
+        rend.material.color = Color.white;
+    }
+
     IEnumerator IncreaseHP()
     {
         yield return new WaitForSecondsRealtime(0.1f);
@@ -321,6 +354,24 @@ public class PlayerMove : MonoBehaviour
         playerAudioData.PlayOneShot(BastardsClip, 0.5f);        
         StartCoroutine(DamageColour());        
         StartCoroutine(Knockback());
+    }
+
+    IEnumerator InfectPlayer()
+    {
+        int sickness = 0;
+        canDamage = false;        
+        yield return new WaitForSecondsRealtime(0.1f);        
+        StartCoroutine(Knockback());
+        while (sickness < 5)
+        {
+            playerAudioData.PlayOneShot(CoughClip, 0.5f);
+            StartCoroutine(VirusDamageColour());
+            yield return new WaitForSecondsRealtime(2.0f);
+            currentHealth -= 1;
+            healthBar.SetHealth(currentHealth);
+            sickness += 1;
+        }
+        canDamage = true;
     }
 
     IEnumerator Invincible()
