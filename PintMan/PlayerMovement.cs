@@ -14,7 +14,8 @@ public class PlayerMove : MonoBehaviour
     public Transform groundCheckPosition;
     public LayerMask groundLayer;    
     private Animator anim;
-    public GameObject Hitfx;    
+    public GameObject Hitfx;
+    private GameObject instantiatedObj;
     private bool jumped, isGrounded,knockback = false,canDamage=true,rhEnemyHit=true;
     public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip,JumpClip,CoughClip;
     AudioSource playerAudioData;
@@ -237,7 +238,7 @@ public class PlayerMove : MonoBehaviour
         }
         else
         {
-            print("Invincilbe, cannot damage");
+            //print("Invincilbe, cannot damage");
         }
     }
 
@@ -272,13 +273,12 @@ public class PlayerMove : MonoBehaviour
             StartCoroutine(IncreaseHP());
             playerAudioData.PlayOneShot(NutsClip, 0.5f);
         }
-        else if (collision.gameObject.tag == "Bullet")
+        else if (collision.gameObject.tag == "Bullet" && canDamage)
         {
-
-            Instantiate(Hitfx, new Vector3(collision.transform.position.x,
-                    collision.transform.position.y - 1f, collision.transform.position.z), Quaternion.identity);
-            Destroy(collision.gameObject);
-            CameraShake();
+            print("Bullet Hit can damage");
+            print(canDamage);
+            StartCoroutine(BulletHitAnim(collision));            
+            //CameraShake();
             StartCoroutine(DamagePlayer());
         }       
         else if (collision.gameObject.tag == "Water")
@@ -286,6 +286,7 @@ public class PlayerMove : MonoBehaviour
             
             StartCoroutine(Restart());
         }
+
        
 
     }
@@ -347,13 +348,15 @@ public class PlayerMove : MonoBehaviour
 
     IEnumerator DamagePlayer()
     {
-        StartCoroutine(Invincible());
+        canDamage = false;
+        print(canDamage);
         currentHealth -= 1;
         healthBar.SetHealth(currentHealth);
         yield return new WaitForSecondsRealtime(0.1f);
         playerAudioData.PlayOneShot(BastardsClip, 0.5f);        
         StartCoroutine(DamageColour());        
         StartCoroutine(Knockback());
+        StartCoroutine(Invincible());
     }
 
     IEnumerator InfectPlayer()
@@ -376,9 +379,21 @@ public class PlayerMove : MonoBehaviour
 
     IEnumerator Invincible()
     {
-        canDamage = false;
-        yield return new WaitForSecondsRealtime(0.7f);
+        
+        yield return new WaitForSecondsRealtime(1f);
         canDamage = true;
+    }
+
+    IEnumerator BulletHitAnim(Collider2D collision)
+    {
+        Destroy(collision.gameObject);
+        instantiatedObj = (GameObject)Instantiate(Hitfx, new Vector3(collision.transform.position.x,
+                    collision.transform.position.y, collision.transform.position.z), Quaternion.identity);
+
+        yield return new WaitForSecondsRealtime(0.7f);
+
+        Destroy(instantiatedObj);
+
     }
 
 
