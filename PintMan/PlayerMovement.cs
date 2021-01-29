@@ -17,7 +17,7 @@ public class PlayerMove : MonoBehaviour
     public GameObject Hitfx;
     private GameObject instantiatedObj;
     private bool jumped, isGrounded,knockback = false,canDamage=true,rhEnemyHit=true;
-    public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip,JumpClip,CoughClip;
+    public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip,JumpClip,CoughClip,DeathClip;
     AudioSource playerAudioData;
     //Reference to camera and overlay sprite unused
     private GameObject cam, Overlay;
@@ -71,7 +71,9 @@ public class PlayerMove : MonoBehaviour
 
         if (currentHealth <=0)
         {
-            Destroy(gameObject);
+            playerAudioData.PlayOneShot(DeathClip, 0.5f);
+            //Destroy(gameObject);
+            anim.Play("LostyDead");
         }
     }
 
