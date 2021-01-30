@@ -6,6 +6,7 @@ public class enemyscript : MonoBehaviour
 {
     public Transform EnemyHeadCollider;
     public LayerMask playerLayer;
+    public float BulletSpeed;
     private GameObject HitFX; 
     private bool stunned = false;
     private Animator anim;
@@ -42,6 +43,7 @@ public class enemyscript : MonoBehaviour
             //print("Collided with enemy");
         }
 
+        //Makes the Enemy sprite face the direction of the player character byt flipping x axis when required
         if (transform.position.x > Pintman.transform.position.x)
         {
             
@@ -63,6 +65,7 @@ public class enemyscript : MonoBehaviour
         //    nextFire = Time.time + fireRate;
         //}       
             Instantiate(bullet, transform.position, Quaternion.identity);
+        bullet.GetComponent<Bullet>().moveSpeed = BulletSpeed;
         enemyAudioData.PlayOneShot(GunClip, 0.5f);
         nextFire = Time.time + fireRate;        
     }
