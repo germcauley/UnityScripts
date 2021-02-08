@@ -8,15 +8,15 @@ public class PlayerMove : MonoBehaviour
     
     public NewHealthBarScript healthBar;
     public int currentHealth, maxHealth = 10;
-    public float speed = 5f, jumpPower = 5f, moveForce = 5f, groundCheckDistance = 0.1f ;
+    public float speed = 5f, jumpPower = 5f, moveForce = 5f, groundCheckDistance = 0.1f,knockBackPower;
     public Vector2 movement;
     private Rigidbody2D myBody;    
     public Transform groundCheckPosition;
     public LayerMask groundLayer;    
     private Animator anim;
-    public GameObject Hitfx;
+    public GameObject Hitfx, deadHead,deadArm,deadLeg,deadBody,blood;
     private GameObject instantiatedObj;
-    private bool jumped, isGrounded,knockback = false,canDamage=true,rhEnemyHit=true;
+    private bool jumped, isGrounded,knockback = false,canDamage=true,rhEnemyHit=true,Dead=false;
     public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip,JumpClip,CoughClip,DeathClip;
     AudioSource playerAudioData;
     //Reference to camera and overlay sprite unused
@@ -71,9 +71,9 @@ public class PlayerMove : MonoBehaviour
 
         if (currentHealth <=0)
         {
-            playerAudioData.PlayOneShot(DeathClip, 0.5f);
-            //Destroy(gameObject);
-            anim.Play("LostyDead");
+            
+            StartCoroutine(PlayerDead());
+            
         }
     }
 
@@ -87,12 +87,12 @@ public class PlayerMove : MonoBehaviour
         {
             if (!rhEnemyHit)
             {
-                Vector2 NewPosition = new Vector2(-100f, 10.0f);
+                Vector2 NewPosition = new Vector2(knockBackPower* -1, 10.0f);
                 moveCharacter(NewPosition);
             }
             else
             {
-                Vector2 NewPosition = new Vector2(100f, 10.0f);
+                Vector2 NewPosition = new Vector2(knockBackPower, 10.0f);
                 moveCharacter(NewPosition);
             }         
         }
@@ -211,7 +211,7 @@ public class PlayerMove : MonoBehaviour
             if (collision.gameObject.tag == "Spike")
             {
                 CameraShake();
-                StartCoroutine(DamagePlayer());
+                StartCoroutine(DamagePlayer(2));
 
             }
             else if (collision.gameObject.tag == "Virus")
@@ -228,9 +228,21 @@ public class PlayerMove : MonoBehaviour
             }
             else if (collision.gameObject.tag == MyTags.MOVING_PLATFORM_TAG)
             {
-                
-                gameObject.transform.SetParent(collision.gameObject.transform);                
+                var emptyObject = new GameObject();
+                emptyObject.transform.parent = collision.gameObject.transform;
+                gameObject.transform.parent = emptyObject.transform;
+
+                //gameObject.transform.SetParent(collision.gameObject.transform);                
                 Debug.Log("On platform.");              
+
+            }
+            else if (collision.gameObject.tag == MyTags.GARDA_CAR_TAG)
+            {
+                knockBackPower = 400f;
+                CameraShake();
+                currentHealth -= 10;
+                //StartCoroutine(DamagePlayer(10));
+                Debug.Log("Hit by car!!!");
 
             }
             else if (collision.gameObject.name == "ENDLEVEL")
@@ -281,7 +293,7 @@ public class PlayerMove : MonoBehaviour
             print(canDamage);
             StartCoroutine(BulletHitAnim(collision));            
             //CameraShake();
-            StartCoroutine(DamagePlayer());
+            StartCoroutine(DamagePlayer(1));
         }       
         else if (collision.gameObject.tag == "Water")
         {
@@ -316,7 +328,8 @@ public class PlayerMove : MonoBehaviour
     {
         knockback = true;
         yield return new WaitForSecondsRealtime(0.1f);
-        knockback = false;       
+        knockback = false;
+        knockBackPower = 100f;
     }
 
     IEnumerator DamageColour()
@@ -348,11 +361,11 @@ public class PlayerMove : MonoBehaviour
         healthBar.SetHealth(currentHealth);
     }
 
-    IEnumerator DamagePlayer()
+    IEnumerator DamagePlayer(int damage)
     {
         canDamage = false;
         print(canDamage);
-        currentHealth -= 1;
+        currentHealth -= damage;
         healthBar.SetHealth(currentHealth);
         yield return new WaitForSecondsRealtime(0.1f);
         playerAudioData.PlayOneShot(BastardsClip, 0.5f);        
@@ -396,6 +409,24 @@ public class PlayerMove : MonoBehaviour
 
         Destroy(instantiatedObj);
 
+    }
+
+    IEnumerator PlayerDead()
+    {
+        if (!Dead)
+        {
+            Dead = true;
+            gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            playerAudioData.PlayOneShot(DeathClip, 0.5f);
+            Instantiate(blood, transform.position, Quaternion.identity);
+            Instantiate(deadHead, transform.position, Quaternion.identity);
+            Instantiate(deadArm, transform.position, Quaternion.identity);
+            Instantiate(deadBody, transform.position, Quaternion.identity);
+            Instantiate(deadLeg, transform.position, Quaternion.identity);
+        }
+
+        
+        yield return new WaitForSecondsRealtime(2f);
     }
 
 
