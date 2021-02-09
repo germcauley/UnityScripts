@@ -17,7 +17,7 @@ public class PlayerMove : MonoBehaviour
     public GameObject Hitfx, deadHead,deadArm,deadLeg,deadBody,blood;
     private GameObject instantiatedObj;
     private bool jumped, isGrounded,knockback = false,canDamage=true,rhEnemyHit=true,Dead=false;
-    public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip,JumpClip,CoughClip,DeathClip;
+    public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip,JumpClip,CoughClip,DeathClip,SplashClip;
     AudioSource playerAudioData;
     //Reference to camera and overlay sprite unused
     private GameObject cam, Overlay;
@@ -297,7 +297,7 @@ public class PlayerMove : MonoBehaviour
         }       
         else if (collision.gameObject.tag == "Water")
         {
-            
+            playerAudioData.PlayOneShot(SplashClip, 0.5f);
             StartCoroutine(Restart());
         }
 
@@ -319,6 +319,7 @@ public class PlayerMove : MonoBehaviour
     IEnumerator Restart()
     {
         Time.timeScale = 0.0f;
+        yield return new WaitForSecondsRealtime(1f);
         playerAudioData.PlayOneShot(BastardsClip, 0.5f);
         yield return new WaitForSecondsRealtime(2f);
         RestartScene();
