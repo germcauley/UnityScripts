@@ -23,7 +23,7 @@ public class enemyscript : MonoBehaviour
     void Start()
     {
        // anim.Play("GardaIdle");
-        fireRate = 2f;
+        fireRate = 1f;
         nextFire = Time.time;
         anim = gameObject.GetComponent<Animator>();
         HitFX = gameObject.transform.GetChild(2).gameObject;
@@ -59,15 +59,14 @@ public class enemyscript : MonoBehaviour
 
     void CheckIfTimeToFire()
     {
-        //if (Time.time > nextFire)
-        //{
-        //    Instantiate(bullet, transform.position, Quaternion.identity);
-        //    nextFire = Time.time + fireRate;
-        //}       
+        if (Time.time > nextFire)
+        {
             Instantiate(bullet, transform.position, Quaternion.identity);
-        bullet.GetComponent<Bullet>().moveSpeed = BulletSpeed;
-        enemyAudioData.PlayOneShot(GunClip, 0.5f);
-        nextFire = Time.time + fireRate;        
+            bullet.GetComponent<Bullet>().moveSpeed = BulletSpeed;
+            enemyAudioData.PlayOneShot(GunClip, 0.5f);
+            nextFire = Time.time + fireRate;
+        }
+
     }
 
     // check for player collision using raycast
