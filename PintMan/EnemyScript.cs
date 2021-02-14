@@ -7,12 +7,12 @@ public class enemyscript : MonoBehaviour
     public Transform EnemyHeadCollider;
     public LayerMask playerLayer;
     public float BulletSpeed;
-    private GameObject HitFX; 
+    private GameObject HitFX,BulletHitfx, instantiatedObj; 
     private bool stunned = false;
     private Animator anim;
     [SerializeField]
     GameObject bullet;
-    public GameObject Pintman;    
+    public GameObject Pintman;  
     public float fireRate;
     float nextFire;
     public AudioClip DeathClip, GunClip;
@@ -75,7 +75,7 @@ public class enemyscript : MonoBehaviour
         
 
         Collider2D topHit = Physics2D.OverlapCircle(EnemyHeadCollider.position, 0.2f, playerLayer);
-        
+        //if player jumps on enemy head it can stun or kill
         if (topHit != null)
         {
             if (topHit.gameObject.tag == MyTags.PLAYER_TAG)
@@ -90,6 +90,20 @@ public class enemyscript : MonoBehaviour
                 }
             }          
         }
+    }
+
+
+
+    IEnumerator BulletHitAnim(Collider2D collision)
+    {
+        Destroy(collision.gameObject);
+        instantiatedObj = (GameObject)Instantiate(BulletHitfx, new Vector3(collision.transform.position.x,
+                    collision.transform.position.y, collision.transform.position.z), Quaternion.identity);
+
+        yield return new WaitForSecondsRealtime(0.7f);
+
+        Destroy(instantiatedObj);
+
     }
 
 

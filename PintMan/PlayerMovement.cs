@@ -398,8 +398,10 @@ public class PlayerMove : MonoBehaviour
         
         yield return new WaitForSecondsRealtime(1f);
         canDamage = true;
+        print("Can damage is:"+canDamage);
     }
 
+    //For when enemy bullets hit the player
     IEnumerator BulletHitAnim(Collider2D collision)
     {
         Destroy(collision.gameObject);

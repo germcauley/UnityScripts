@@ -6,17 +6,22 @@ public class FireBullet : MonoBehaviour
 {
     private float speed = 10f;
     private Animator anim;
-    private bool canMove =true;
-
+    private bool canMove = true;
+    public GameObject Hitfx;
+    public AudioClip ExplodeClip;
+    AudioSource spudAudioData;
     void Awake()
     {
         anim = GetComponent<Animator>();
+        anim.Play("PotatoIdle");
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        anim.SetBool("Explode", false);
         StartCoroutine(DisableBullet(5f));
+        spudAudioData = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -55,17 +60,29 @@ public class FireBullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D target)
     {
-        if(target.gameObject.tag == MyTags.BEETLE_TAG || target.gameObject.tag == MyTags.SNAIL_TAG || target.gameObject.tag == MyTags.SPIDER_TAG|| target.gameObject.tag == MyTags.BOSS_TAG)
-        {
-            anim.Play("Explode");
-            canMove = false;
-            StartCoroutine(DisableBullet(0.2f));
+        
+        if(target.name == "GardaGun")
+        {           
+            canMove = false;            
+            StartCoroutine(BulletHitAnim(target));            
         }
+    }
+
+
+    IEnumerator BulletHitAnim(Collider2D collision)
+    {
+        print("Play bullet hit anim");        
+        anim.SetBool("Explode", true);
+        spudAudioData.PlayOneShot(ExplodeClip, 0.5f);
+        yield return new WaitForSecondsRealtime(0.5f);
+        Destroy(gameObject);
+      
     }
 
 
 
 }//class
+
 
 
 
