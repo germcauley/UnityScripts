@@ -6,15 +6,14 @@ public class enemyscript : MonoBehaviour
 {
     public Transform EnemyHeadCollider;
     public LayerMask playerLayer;
-    public float BulletSpeed;
-    private GameObject HitFX,BulletHitfx, instantiatedObj; 
+    public float BulletSpeed, fireRate, nextFire;
+    private GameObject HitFX,BulletHitfx, instantiatedObj,DetectorChildObj;
+    public int GardaHealth = 5;
     private bool stunned = false;
     private Animator anim;
     [SerializeField]
     GameObject bullet;
-    public GameObject Pintman;  
-    public float fireRate;
-    float nextFire;
+    public GameObject Pintman;      
     public AudioClip DeathClip, GunClip;
     AudioSource enemyAudioData;
 
@@ -27,6 +26,7 @@ public class enemyscript : MonoBehaviour
         nextFire = Time.time;
         anim = gameObject.GetComponent<Animator>();
         HitFX = gameObject.transform.GetChild(2).gameObject;
+        DetectorChildObj = gameObject.transform.GetChild(1).gameObject;
         HitFX.SetActive(false);
         Pintman = GameObject.Find("PintMan");
         enemyAudioData = GetComponent<AudioSource>();
@@ -35,26 +35,26 @@ public class enemyscript : MonoBehaviour
     
     void Update()
     {
-
         //CheckIfHit();
         CheckCollision();
         if (Physics2D.Raycast(EnemyHeadCollider.position, Vector2.up, 0.5f, playerLayer))
         {
             //print("Collided with enemy");
         }
-
         //Makes the Enemy sprite face the direction of the player character byt flipping x axis when required
         if (transform.position.x > Pintman.transform.position.x)
-        {
-            
+        {            
             transform.localScale = new Vector2(-0.15f, 0.15f);
         }
         else if (transform.position.x < Pintman.transform.position.x)
-        {
-           
+        {           
             transform.localScale = new Vector2(0.15f, 0.15f);
+        }       
+
+        if (GardaHealth <= 0)
+        {
+            StartCoroutine(DestroyEnemy());
         }
-        //CheckIfTimeToFire();
     }
 
     void CheckIfTimeToFire()
@@ -89,6 +89,17 @@ public class enemyscript : MonoBehaviour
                 StartCoroutine(DestroyEnemy());   
                 }
             }          
+        }
+    }
+
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+       // Physics2D.IgnoreCollision(collision, DetectorChildObj.GetComponent<Collider2D>());
+       
+        if (collision.gameObject.tag == MyTags.SPUD_TAG)
+        {                  
+            GardaHealth -= 1;            
         }
     }
 
