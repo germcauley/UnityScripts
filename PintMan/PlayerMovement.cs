@@ -240,9 +240,18 @@ public class PlayerMove : MonoBehaviour
             {
                 knockBackPower = 400f;
                 CameraShake();
-                currentHealth -= 10;
+                currentHealth -= 5;
                 //StartCoroutine(DamagePlayer(10));
                 Debug.Log("Hit by car!!!");
+
+            }
+            else if (collision.gameObject.tag == MyTags.BOSS_TAG)
+            {
+                knockBackPower = 400f;
+                CameraShake();
+                currentHealth -= 10;
+                //StartCoroutine(DamagePlayer(10));
+                Debug.Log("Hit by BOss!!!");
 
             }
             else if (collision.gameObject.name == "ENDLEVEL")
@@ -288,11 +297,9 @@ public class PlayerMove : MonoBehaviour
             playerAudioData.PlayOneShot(NutsClip, 0.5f);
         }
         else if (collision.gameObject.tag == "Bullet" && canDamage)
-        {
-            print("Bullet Hit can damage");
-            print(canDamage);
+        {                
             StartCoroutine(BulletHitAnim(collision));            
-            //CameraShake();
+            CameraShake();
             StartCoroutine(DamagePlayer(1));
         }       
         else if (collision.gameObject.tag == "Water")
@@ -364,8 +371,7 @@ public class PlayerMove : MonoBehaviour
 
     IEnumerator DamagePlayer(int damage)
     {
-        canDamage = false;
-        print(canDamage);
+        canDamage = false;        
         currentHealth -= damage;
         healthBar.SetHealth(currentHealth);
         yield return new WaitForSecondsRealtime(0.1f);
