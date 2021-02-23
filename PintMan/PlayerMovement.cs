@@ -16,7 +16,7 @@ public class PlayerMove : MonoBehaviour
     private Animator anim;
     public GameObject Hitfx, deadHead,deadArm,deadLeg,deadBody,blood;
     private GameObject instantiatedObj;
-    private bool jumped, isGrounded,knockback = false,canDamage=true,rhEnemyHit=true,Dead=false;
+    private bool jumped,playingJumpAudio = false, isGrounded,knockback = false,canDamage=true,rhEnemyHit=true,Dead=false;
     public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip,JumpClip,CoughClip,DeathClip,SplashClip;
     AudioSource playerAudioData;
     //Reference to camera and overlay sprite unused
@@ -34,7 +34,8 @@ public class PlayerMove : MonoBehaviour
 
     void Awake()
     {
-        
+        Dead = false;
+        canDamage = true;
         cam = GameObject.Find("CameraShaker");
         Time.timeScale = 1.0f;
         myBody = GetComponent<Rigidbody2D>();
@@ -62,17 +63,19 @@ public class PlayerMove : MonoBehaviour
     {
         movement = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         
-        CheckIfGrounded();
-        PlayerJump();
+        CheckIfGrounded();        
         if (Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.5f, groundLayer))
         {
             //print("Collided with groud raycast");
         }
 
-        if (currentHealth <=0)
+        if (currentHealth <=0 && Dead ==false)
         {
-            
+            print("players has died!");
+            Dead = true;
             StartCoroutine(PlayerDead());
+            //new WaitForSeconds(2f);
+            
             
         }
     }
@@ -82,7 +85,7 @@ public class PlayerMove : MonoBehaviour
     void FixedUpdate()
     {
         PlayerWalk();
-
+        PlayerJump();
         if (knockback == true)
         {
             if (!rhEnemyHit)
@@ -100,8 +103,7 @@ public class PlayerMove : MonoBehaviour
 
 
     void CameraShake()
-    {
-        print("shaking camera!");   
+    {       
         cam.GetComponent<CameraShakeScript>().ShakeIt();       
     }
     void ChangeDirection(float direction)
@@ -112,20 +114,12 @@ public class PlayerMove : MonoBehaviour
     }
 
     void CheckIfGrounded()
-    {
-        isGrounded = Physics2D.Raycast(groundCheckPosition.position, Vector2.down, groundCheckDistance, groundLayer);       
-
-        Console.WriteLine("ground");
-
+    {       
+        isGrounded = Physics2D.Raycast(groundCheckPosition.position, Vector2.down, groundCheckDistance, groundLayer);        
         if (isGrounded)
-        {
-            if (jumped)
-            {
-                jumped = false;
-
-                //anim.SetBool("Jump", false);
-            }
-        }       
+        {            
+           jumped = false;           
+        }
     }
 
 
@@ -138,8 +132,7 @@ public class PlayerMove : MonoBehaviour
         if (h > 0)
         {
             anim.Play("LostyRun");
-            myBody.velocity = new Vector2(speed, myBody.velocity.y);
-            
+            myBody.velocity = new Vector2(speed, myBody.velocity.y);            
             ChangeDirection(1f);
 
         }
@@ -147,7 +140,6 @@ public class PlayerMove : MonoBehaviour
         {
             anim.Play("LostyRun");
             myBody.velocity = new Vector2(-speed, myBody.velocity.y);
-
             ChangeDirection(-1f);
         }
         else
@@ -155,34 +147,26 @@ public class PlayerMove : MonoBehaviour
             anim.Play("LostyIdle");
             myBody.velocity = new Vector2(0F, myBody.velocity.y);
         }
-
         //anim.SetInteger("Speed", Mathf.Abs((int)myBody.velocity.x));
-
-
     }
 
 
     void PlayerJump()
-    {
-        if (isGrounded)
-        {
-            if (Input.GetKey(KeyCode.Space))
+    {       
+            if (Input.GetKey(KeyCode.Space) && isGrounded && jumped ==false)
             {
-                jumped = true;
+                print("jumped!!!!");
+                jumped = true;                
                 myBody.velocity = new Vector2(myBody.velocity.x, jumpPower);
-                playerAudioData.PlayOneShot(JumpClip, 0.1f);
-                //anim.SetBool("Jump", true);
-                Console.WriteLine("Player jump");
-
-            }
-        }
-        else
-        {
-            if (Input.GetKey(KeyCode.Space))
+            if (!playingJumpAudio)
             {
-                Console.WriteLine("jumping!!!");
+                playingJumpAudio = true;
+                StartCoroutine(PlayJumpAudioClip());
             }
-        }
+                
+                //anim.SetBool("Jump", true);               
+
+            }       
     }
 
     void moveCharacter(Vector2 direction)
@@ -211,7 +195,8 @@ public class PlayerMove : MonoBehaviour
             if (collision.gameObject.tag == "Spike")
             {
                 CameraShake();
-                StartCoroutine(DamagePlayer(2));
+                StartCoroutine(PlayerDead());
+                //StartCoroutine(DamagePlayer(10));
 
             }
             else if (collision.gameObject.tag == "Virus")
@@ -233,23 +218,22 @@ public class PlayerMove : MonoBehaviour
                 gameObject.transform.parent = emptyObject.transform;
 
                 //gameObject.transform.SetParent(collision.gameObject.transform);                
-                Debug.Log("On platform.");              
+               // Debug.Log("On platform.");              
 
             }
             else if (collision.gameObject.tag == MyTags.GARDA_CAR_TAG)
             {
                 knockBackPower = 400f;
                 CameraShake();
-                currentHealth -= 5;
-                //StartCoroutine(DamagePlayer(10));
+                StartCoroutine(PlayerDead());
                 Debug.Log("Hit by car!!!");
 
-            }
+            }           
             else if (collision.gameObject.tag == MyTags.BOSS_TAG)
             {
-                knockBackPower = 400f;
-                CameraShake();
-                currentHealth -= 10;
+                //knockBackPower = 400f;
+                //CameraShake();
+                //currentHealth -= 10;
                 //StartCoroutine(DamagePlayer(10));
                 Debug.Log("Hit by BOss!!!");
 
@@ -301,7 +285,14 @@ public class PlayerMove : MonoBehaviour
             StartCoroutine(BulletHitAnim(collision));            
             CameraShake();
             StartCoroutine(DamagePlayer(1));
-        }       
+        }
+        else if (collision.gameObject.tag == MyTags.BAG_OF_SPUDS)
+        {
+            //knockBackPower = 400f;
+            CameraShake();
+            StartCoroutine(DamagePlayer(3));
+
+        }
         else if (collision.gameObject.tag == "Water")
         {
             playerAudioData.PlayOneShot(SplashClip, 0.5f);
@@ -325,9 +316,7 @@ public class PlayerMove : MonoBehaviour
 
     IEnumerator Restart()
     {
-        Time.timeScale = 0.0f;
-        yield return new WaitForSecondsRealtime(1f);
-        playerAudioData.PlayOneShot(BastardsClip, 0.5f);
+        Time.timeScale = 0.0f;           
         yield return new WaitForSecondsRealtime(2f);
         RestartScene();
     }
@@ -338,6 +327,13 @@ public class PlayerMove : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.1f);
         knockback = false;
         knockBackPower = 100f;
+    }
+
+    IEnumerator PlayJumpAudioClip()
+    {
+        playerAudioData.PlayOneShot(JumpClip, 0.2f);
+        yield return new WaitForSeconds(0.3f);
+        playingJumpAudio = false;
     }
 
     IEnumerator DamageColour()
@@ -400,11 +396,9 @@ public class PlayerMove : MonoBehaviour
     }
 
     IEnumerator Invincible()
-    {
-        
+    {        
         yield return new WaitForSecondsRealtime(1f);
-        canDamage = true;
-        print("Can damage is:"+canDamage);
+        canDamage = true;       
     }
 
     //For when enemy bullets hit the player
@@ -425,17 +419,18 @@ public class PlayerMove : MonoBehaviour
         if (!Dead)
         {
             Dead = true;
+            canDamage = false;
+            healthBar.SetHealth(0);
             gameObject.GetComponent<SpriteRenderer>().enabled = false;
             playerAudioData.PlayOneShot(DeathClip, 0.5f);
             Instantiate(blood, transform.position, Quaternion.identity);
             Instantiate(deadHead, transform.position, Quaternion.identity);
             Instantiate(deadArm, transform.position, Quaternion.identity);
             Instantiate(deadBody, transform.position, Quaternion.identity);
-            Instantiate(deadLeg, transform.position, Quaternion.identity);
-        }
-
-        
+            Instantiate(deadLeg, transform.position, Quaternion.identity);            
+        }        
         yield return new WaitForSecondsRealtime(2f);
+        StartCoroutine(Restart());
     }
 
 
