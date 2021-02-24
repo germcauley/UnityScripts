@@ -240,6 +240,7 @@ public class PlayerMove : MonoBehaviour
             }
             else if (collision.gameObject.name == "ENDLEVEL")
             {
+                playerAudioData.PlayOneShot(PintsClip, 0.5f);
                 StartCoroutine(Restart());
             }
         }
