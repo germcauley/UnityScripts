@@ -21,6 +21,7 @@ public class PlayerMove : MonoBehaviour
     AudioSource playerAudioData;
     //Reference to camera and overlay sprite unused
     private GameObject cam, Overlay;
+    private GameObject GameOverText;
     // Reference to Sprite Renderer component
     private Renderer rend, overlayRend;
 
@@ -41,7 +42,9 @@ public class PlayerMove : MonoBehaviour
         myBody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         playerAudioData = GetComponent<AudioSource>();
-        
+        GameOverText = GameObject.Find("GameOverText");
+        GameOverText.SetActive(false);
+
     }
 
     // Start is called before the first frame update
@@ -428,7 +431,8 @@ public class PlayerMove : MonoBehaviour
             Instantiate(deadHead, transform.position, Quaternion.identity);
             Instantiate(deadArm, transform.position, Quaternion.identity);
             Instantiate(deadBody, transform.position, Quaternion.identity);
-            Instantiate(deadLeg, transform.position, Quaternion.identity);            
+            Instantiate(deadLeg, transform.position, Quaternion.identity);
+            GameOverText.SetActive(true);
         }        
         yield return new WaitForSecondsRealtime(2f);
         StartCoroutine(Restart());
