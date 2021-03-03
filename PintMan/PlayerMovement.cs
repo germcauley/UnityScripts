@@ -25,6 +25,8 @@ public class PlayerMove : MonoBehaviour
     // Reference to Sprite Renderer component
     private Renderer rend, overlayRend;
 
+    private GameMaster gm;
+
     // Color value that we can set in Inspector
     // It's White by default
     [SerializeField]
@@ -56,6 +58,8 @@ public class PlayerMove : MonoBehaviour
         rend = GetComponent<Renderer>();
         Overlay = GameObject.Find("Overlay");
         overlayRend = Overlay.GetComponent<Renderer>();
+        gm = GameObject.FindGameObjectWithTag("GM").GetComponent<GameMaster>();
+        transform.position = gm.lastCheckPointPos;
 
 
 
@@ -157,8 +161,7 @@ public class PlayerMove : MonoBehaviour
     void PlayerJump()
     {       
             if (Input.GetKey(KeyCode.Space) && isGrounded && jumped ==false)
-            {
-                print("jumped!!!!");
+            {                
                 jumped = true;                
                 myBody.velocity = new Vector2(myBody.velocity.x, jumpPower);
             if (!playingJumpAudio)
