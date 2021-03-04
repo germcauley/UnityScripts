@@ -11,12 +11,15 @@ public class MrSpudScript : MonoBehaviour
     public LayerMask playerLayer;
     private string coroutine_Name = "StartAttack";
     public float ProjectileSpeed, fireRate, nextFire;
+    public AudioClip BossPainClip;
+    private AudioSource BossAudioData;
     public Transform EnemyHeadCollider;
 
 
     void Start()
     {
         Pintman = GameObject.Find("PintMan");
+        BossAudioData = gameObject.GetComponent<AudioSource>();
     }
 
 
@@ -74,6 +77,7 @@ public class MrSpudScript : MonoBehaviour
 
                 if (!stunned)
                 {
+                    BossAudioData.PlayOneShot(BossPainClip, 0.8f);
                     topHit.gameObject.GetComponent<Rigidbody2D>().velocity =
                 new Vector2(topHit.gameObject.GetComponent<Rigidbody2D>().velocity.x, 7f);
                     //StartCoroutine(DestroyEnemy());
