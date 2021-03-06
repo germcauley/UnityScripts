@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime;
 using UnityEngine;
 
 public class MrSpudScript : MonoBehaviour
@@ -11,6 +12,8 @@ public class MrSpudScript : MonoBehaviour
     public LayerMask playerLayer;
     private string coroutine_Name = "StartAttack";
     public float ProjectileSpeed, fireRate, nextFire;
+    int bounceDir=100;
+    int randNum;
     public AudioClip BossPainClip;
     private AudioSource BossAudioData;
     public Transform EnemyHeadCollider;
@@ -24,6 +27,9 @@ public class MrSpudScript : MonoBehaviour
         BossAudioData = gameObject.GetComponent<AudioSource>();
         anim = gameObject.GetComponent<Animator>();
         pintManRB = Pintman.GetComponent<Rigidbody2D>();
+        randNum = Random.Range(0, 2);
+
+
     }
 
 
@@ -38,15 +44,20 @@ public class MrSpudScript : MonoBehaviour
         //Makes the Enemy sprite face the direction of the player character byt flipping x axis when required
         if (transform.position.x > Pintman.transform.position.x)
         {
+
+
+            
             transform.localScale = new Vector2(2f, 2f);
         }
         else if (transform.position.x < Pintman.transform.position.x)
         {
+           
+            
             transform.localScale = new Vector2(-2f, 2f);
         }
 
        
-        movement = new Vector2(100f, 0f);
+        movement = new Vector2(bounceDir, 0f);
     }
 
     private void FixedUpdate()
@@ -54,12 +65,14 @@ public class MrSpudScript : MonoBehaviour
         if (hit)
         {
             moveCharacter(movement);
+           
         }
     }
 
     void moveCharacter(Vector2 direction)
     {
-        pintManRB.AddForce(direction * 10f);
+        pintManRB.AddForce(direction * 3f);
+
     }
 
 
@@ -90,10 +103,22 @@ public class MrSpudScript : MonoBehaviour
             if (topHit.gameObject.tag == MyTags.PLAYER_TAG)
             {             
                 if (!stunned)
-                {                
+                {
+                    print("RANDOM NUM IS:" + randNum);
+                    if (randNum == 0)
+                    {
+                        bounceDir = 100;
+                    }
+                    else
+                    {
+                        bounceDir = -100;
+                    }
                     stunned = true;
                     hit = true;
-                    print("BOSS is INVINCIBLE");
+                    topHit.gameObject.GetComponent<Rigidbody2D>().velocity =
+                new Vector2(topHit.gameObject.GetComponent<Rigidbody2D>().velocity.x, 7f);                     
+                    
+                    StartCoroutine(MovePlayer());
                     StartCoroutine(Stunned());                   
                 }
             }
@@ -107,6 +132,13 @@ public class MrSpudScript : MonoBehaviour
         StartCoroutine(coroutine_Name);
     }
 
+    IEnumerator MovePlayer()
+    {
+        
+        yield return new WaitForSeconds(.5f);
+        hit = false;
+    }
+
 
     IEnumerator Stunned()
     {
@@ -114,7 +146,7 @@ public class MrSpudScript : MonoBehaviour
         anim.SetBool("Stunned", true);        
         yield return new WaitForSeconds(1.5f);
         anim.SetBool("Stunned", false);
-        stunned = false;
+        stunned = false;        
         print("BOSS NO LONGER INVINCIBLE");
     }
    
