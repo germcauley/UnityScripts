@@ -23,7 +23,7 @@ public class MrSpudScript : MonoBehaviour
     [SerializeField]
     private Color colorToTurnTo = Color.white;
 
-    //Object pooling code
+    //Object pooling code for crisps
     public List<GameObject> pooledObjects;
     public GameObject objectToPool;
     public int amountToPool;
@@ -39,7 +39,7 @@ public class MrSpudScript : MonoBehaviour
         pintManRB = Pintman.GetComponent<Rigidbody2D>();
         rend = GetComponent<Renderer>();
 
-        //Add objects to pool
+        //Add crisps objects to pool
         pooledObjects = new List<GameObject>();
         for (int i = 0; i < amountToPool; i++)
         {
@@ -48,8 +48,6 @@ public class MrSpudScript : MonoBehaviour
             pooledObjects.Add(obj);
         }
         //end pooling code
-
-
     }
 
 
@@ -64,19 +62,14 @@ public class MrSpudScript : MonoBehaviour
         //Makes the Enemy sprite face the direction of the player character byt flipping x axis when required
         if (transform.position.x > Pintman.transform.position.x)
         {
-
-
-            
+          
             transform.localScale = new Vector2(2f, 2f);
         }
         else if (transform.position.x < Pintman.transform.position.x)
         {
-           
-            
+                      
             transform.localScale = new Vector2(-2f, 2f);
-        }
-
-       
+        }     
         movement = new Vector2(bounceDir, 0f);
 
     }
@@ -147,20 +140,6 @@ public class MrSpudScript : MonoBehaviour
         }
     }
 
-    //public GameObject GetPooledObject()
-    //{
-    //    //1
-    //    for (int i = 0; i < pooledObjects.Count; i++)
-    //    {
-    //        //2
-    //        if (!pooledObjects[i].activeInHierarchy)
-    //        {
-    //            return pooledObjects[i];
-    //        }
-    //    }
-    //    //3   
-    //    return null;
-    //}
 
 //Coroutines
 
@@ -184,19 +163,33 @@ public class MrSpudScript : MonoBehaviour
         BossAudioData.PlayOneShot(BossPainClip, 0.8f);
         anim.SetBool("Stunned", true);
         //make crisps appear when mr spud hit
-
-
         for (int i = 0; i < pooledObjects.Count; i++)
         {
             //2
             if (!pooledObjects[i].activeInHierarchy)
             {
-                pooledObjects[i].transform.position = new Vector3(42f+i, -2f, 0f);
+                //sapwn crisps near boss and make sure they are not trigger and have gravity
+                pooledObjects[i].transform.position = new Vector3(gameObject.transform.position.x +i, -2f, 0f);
+                //For rigidbody
+                pooledObjects[i].GetComponent<Rigidbody2D>().gravityScale=5;
+                pooledObjects[i].GetComponent<BoxCollider2D>().isTrigger = false;
+                pooledObjects[i].GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+                //For rigidbody2D               
                 //bullet.transform.rotation = new Vector3(42f, -2f, 0f)
                 pooledObjects[i].SetActive(true);
+               
+                
             }
         }
-       
+        yield return new WaitForSeconds(.5f);
+
+        //Reset crisps to triggers and fix their positions.
+        foreach (GameObject tayto in GameObject.FindGameObjectsWithTag("Crisps"))
+        {
+            tayto.GetComponent<Rigidbody2D>().gravityScale = 0;
+            tayto.GetComponent<BoxCollider2D>().isTrigger = true;
+            tayto.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+        }
 
         yield return new WaitForSeconds(1.5f);
         anim.SetBool("Stunned", false);
