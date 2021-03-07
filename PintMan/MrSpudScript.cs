@@ -19,7 +19,9 @@ public class MrSpudScript : MonoBehaviour
     public Transform EnemyHeadCollider;
     private Rigidbody2D pintManRB;
     public Vector2 movement;
-
+    private Renderer rend;
+    [SerializeField]
+    private Color colorToTurnTo = Color.white;
 
     void Start()
     {
@@ -27,7 +29,7 @@ public class MrSpudScript : MonoBehaviour
         BossAudioData = gameObject.GetComponent<AudioSource>();
         anim = gameObject.GetComponent<Animator>();
         pintManRB = Pintman.GetComponent<Rigidbody2D>();
-        randNum = Random.Range(0, 2);
+        rend = GetComponent<Renderer>();
 
 
     }
@@ -58,6 +60,7 @@ public class MrSpudScript : MonoBehaviour
 
        
         movement = new Vector2(bounceDir, 0f);
+
     }
 
     private void FixedUpdate()
@@ -104,7 +107,7 @@ public class MrSpudScript : MonoBehaviour
             {             
                 if (!stunned)
                 {
-                    print("RANDOM NUM IS:" + randNum);
+                    randNum = Random.Range(0, 2);                    
                     if (randNum == 0)
                     {
                         bounceDir = 100;
@@ -119,6 +122,7 @@ public class MrSpudScript : MonoBehaviour
                 new Vector2(topHit.gameObject.GetComponent<Rigidbody2D>().velocity.x, 7f);                     
                     
                     StartCoroutine(MovePlayer());
+                    StartCoroutine(DamageColour());
                     StartCoroutine(Stunned());                   
                 }
             }
@@ -146,8 +150,26 @@ public class MrSpudScript : MonoBehaviour
         anim.SetBool("Stunned", true);        
         yield return new WaitForSeconds(1.5f);
         anim.SetBool("Stunned", false);
-        stunned = false;        
-        print("BOSS NO LONGER INVINCIBLE");
+        stunned = false;                
     }
-   
-}
+
+    IEnumerator DamageColour()
+    {
+        rend.material.color = colorToTurnTo;
+        yield return new WaitForSecondsRealtime(0.2f);
+        rend.material.color = Color.white;
+        yield return new WaitForSecondsRealtime(0.2f);
+        rend.material.color = colorToTurnTo;
+        yield return new WaitForSecondsRealtime(0.2f);
+        rend.material.color = Color.white;
+    }
+
+
+
+
+
+
+
+
+
+}//end of class
