@@ -12,8 +12,8 @@ public class MrSpudScript : MonoBehaviour
     public LayerMask playerLayer;
     private string coroutine_Name = "StartAttack";
     public float ProjectileSpeed, fireRate, nextFire;
-    int bounceDir=100;
-    int randNum;
+    int bounceDir=100, randNum,mrSpudHealth;
+
     public AudioClip BossPainClip;
     private AudioSource BossAudioData;
     public Transform EnemyHeadCollider;
@@ -23,6 +23,14 @@ public class MrSpudScript : MonoBehaviour
     [SerializeField]
     private Color colorToTurnTo = Color.white;
 
+    //Object pooling code
+    public List<GameObject> pooledObjects;
+    public GameObject objectToPool;
+    public int amountToPool;
+
+
+
+
     void Start()
     {
         Pintman = GameObject.Find("PintMan");
@@ -30,6 +38,16 @@ public class MrSpudScript : MonoBehaviour
         anim = gameObject.GetComponent<Animator>();
         pintManRB = Pintman.GetComponent<Rigidbody2D>();
         rend = GetComponent<Renderer>();
+
+        //Add objects to pool
+        pooledObjects = new List<GameObject>();
+        for (int i = 0; i < amountToPool; i++)
+        {
+            GameObject obj = (GameObject)Instantiate(objectToPool);
+            obj.SetActive(false);
+            pooledObjects.Add(obj);
+        }
+        //end pooling code
 
 
     }
@@ -129,6 +147,23 @@ public class MrSpudScript : MonoBehaviour
         }
     }
 
+    //public GameObject GetPooledObject()
+    //{
+    //    //1
+    //    for (int i = 0; i < pooledObjects.Count; i++)
+    //    {
+    //        //2
+    //        if (!pooledObjects[i].activeInHierarchy)
+    //        {
+    //            return pooledObjects[i];
+    //        }
+    //    }
+    //    //3   
+    //    return null;
+    //}
+
+//Coroutines
+
     IEnumerator StartAttack()
     {
         yield return new WaitForSeconds(Random.Range(2f, 5f));
@@ -147,7 +182,22 @@ public class MrSpudScript : MonoBehaviour
     IEnumerator Stunned()
     {
         BossAudioData.PlayOneShot(BossPainClip, 0.8f);
-        anim.SetBool("Stunned", true);        
+        anim.SetBool("Stunned", true);
+        //make crisps appear when mr spud hit
+
+
+        for (int i = 0; i < pooledObjects.Count; i++)
+        {
+            //2
+            if (!pooledObjects[i].activeInHierarchy)
+            {
+                pooledObjects[i].transform.position = new Vector3(42f+i, -2f, 0f);
+                //bullet.transform.rotation = new Vector3(42f, -2f, 0f)
+                pooledObjects[i].SetActive(true);
+            }
+        }
+       
+
         yield return new WaitForSeconds(1.5f);
         anim.SetBool("Stunned", false);
         stunned = false;                
