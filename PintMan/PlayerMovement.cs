@@ -81,9 +81,7 @@ public class PlayerMove : MonoBehaviour
             print("players has died!");
             Dead = true;
             StartCoroutine(PlayerDead());
-            //new WaitForSeconds(2f);
-            
-            
+            //new WaitForSeconds(2f);                     
         }
     }
 
@@ -244,6 +242,11 @@ public class PlayerMove : MonoBehaviour
                 Debug.Log("Hit by BOss!!!");
 
             }
+            else if (collision.gameObject.tag == MyTags.BOSS_HEAD)
+            {
+
+               // StartCoroutine(DamagePlayer(0));
+            }
             else if (collision.gameObject.name == "ENDLEVEL")
             {
                 playerAudioData.PlayOneShot(PintsClip, 0.5f);
@@ -297,9 +300,17 @@ public class PlayerMove : MonoBehaviour
         {
             //knockBackPower = 400f;
             CameraShake();
-            StartCoroutine(DamagePlayer(3));
+            if(currentHealth >= 4)
+            {
+                StartCoroutine(DamagePlayer(3));
+            }
+            else
+            {
+                StartCoroutine(PlayerDead());
+            }
+            
 
-        }
+        }       
         else if (collision.gameObject.tag == "Water")
         {
             playerAudioData.PlayOneShot(SplashClip, 0.5f);
@@ -330,10 +341,11 @@ public class PlayerMove : MonoBehaviour
 
     IEnumerator Knockback()
     {
+        knockBackPower = 100f;
         knockback = true;
         yield return new WaitForSecondsRealtime(0.1f);
         knockback = false;
-        knockBackPower = 100f;
+    
     }
 
     IEnumerator PlayJumpAudioClip()
@@ -425,6 +437,7 @@ public class PlayerMove : MonoBehaviour
     {
         if (!Dead)
         {
+            print("dead corutine");
             Dead = true;
             canDamage = false;
             healthBar.SetHealth(0);
