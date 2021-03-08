@@ -1,4 +1,5 @@
-using System.Collections;
+
+  using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
@@ -60,7 +61,7 @@ public class PlayerMove : MonoBehaviour
         overlayRend = Overlay.GetComponent<Renderer>();
         gm = GameObject.FindGameObjectWithTag("GM").GetComponent<GameMaster>();
         transform.position = gm.lastCheckPointPos;
-
+        print("Starting Health is: " + currentHealth);
 
 
     }
@@ -249,8 +250,9 @@ public class PlayerMove : MonoBehaviour
             }
             else if (collision.gameObject.name == "ENDLEVEL")
             {
-                playerAudioData.PlayOneShot(PintsClip, 0.5f);
-                StartCoroutine(Restart());
+                //playerAudioData.PlayOneShot(PintsClip, 0.5f);
+                //StartCoroutine(Restart());
+                SceneManager.LoadScene(2);
             }
         }
         else
@@ -380,7 +382,11 @@ public class PlayerMove : MonoBehaviour
     IEnumerator IncreaseHP()
     {
         yield return new WaitForSecondsRealtime(0.1f);
-        currentHealth += 1;
+        if (currentHealth < 10)
+        {
+            currentHealth += 1;
+        }
+       
         healthBar.SetHealth(currentHealth);
     }
 
@@ -409,6 +415,7 @@ public class PlayerMove : MonoBehaviour
             yield return new WaitForSecondsRealtime(2.0f);
             currentHealth -= 1;
             healthBar.SetHealth(currentHealth);
+            print("virus health " + currentHealth);
             sickness += 1;
         }
         canDamage = true;
