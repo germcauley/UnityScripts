@@ -1,5 +1,4 @@
-
-  using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
@@ -210,6 +209,13 @@ public class PlayerMove : MonoBehaviour
                 moveCharacter(NewPosition);
 
                 StartCoroutine(InfectPlayer());
+            }
+            else if (collision.gameObject.tag ==MyTags.RED_VIRUS_TAG)
+            {
+                Vector2 NewPosition = new Vector2(-100f, 10.0f);
+                moveCharacter(NewPosition);
+
+                StartCoroutine(DamagePlayer(5));
             }
             else if (collision.gameObject.name == "GardaWalk")
             {
