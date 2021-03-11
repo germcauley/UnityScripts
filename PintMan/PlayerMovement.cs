@@ -16,11 +16,11 @@ public class PlayerMove : MonoBehaviour
     private Animator anim;
     public GameObject Hitfx, deadHead,deadArm,deadLeg,deadBody,blood;
     private GameObject instantiatedObj;
-    private bool jumped,playingJumpAudio = false, isGrounded,knockback = false,canDamage=true,rhEnemyHit=true,Dead=false;
+    private bool jumped, playingJumpAudio = false, isGrounded, knockback = false, canDamage = true, rhEnemyHit = true, Dead = false;
     public AudioClip PintsClip,CripsClip,NutsClip,BastardsClip,JumpClip,CoughClip,DeathClip,SplashClip;
     AudioSource playerAudioData;
     //Reference to camera and overlay sprite unused
-    private GameObject cam, Overlay;
+    private GameObject cam, Overlay,StartPosition;
     private GameObject GameOverText;
     // Reference to Sprite Renderer component
     private Renderer rend, overlayRend;
@@ -45,6 +45,7 @@ public class PlayerMove : MonoBehaviour
         anim = GetComponent<Animator>();
         playerAudioData = GetComponent<AudioSource>();
         GameOverText = GameObject.Find("GameOverText");
+        StartPosition = GameObject.Find("StartPosition");
         GameOverText.SetActive(false);
 
     }
@@ -59,8 +60,22 @@ public class PlayerMove : MonoBehaviour
         Overlay = GameObject.Find("Overlay");
         overlayRend = Overlay.GetComponent<Renderer>();
         gm = GameObject.FindGameObjectWithTag("GM").GetComponent<GameMaster>();
-        transform.position = gm.lastCheckPointPos;
-        print("Starting Health is: " + currentHealth);
+        //Set starting spawn, first checkpoint and end changes spawn location
+
+        if (gm.gameObject.GetComponent<GameMaster>().newLevel) {
+
+            transform.position = StartPosition.transform.position;
+            print("Game master checkpoint is now: " + gm.gameObject.GetComponent<GameMaster>().newLevel);
+            print("New level starts: Position is: " + transform.position);
+        }
+        else
+        {
+            transform.position = gm.lastCheckPointPos;
+            print("Game master checkpoint is now: " + gm.gameObject.GetComponent<GameMaster>().newLevel);
+            print("Restarts: Position is: " + transform.position);
+        }
+        
+ 
 
 
     }
@@ -218,9 +233,8 @@ public class PlayerMove : MonoBehaviour
                 StartCoroutine(DamagePlayer(5));
             }
             else if (collision.gameObject.name == "GardaWalk")
-            {
-                print("TAKEMONEY");
-                //take 1 pint from score and dage -1 ,if pints are 0 damage -2
+            {                
+                StartCoroutine(DamagePlayer(1));               
             }
             else if (collision.gameObject.tag == MyTags.MOVING_PLATFORM_TAG)
             {
@@ -228,8 +242,7 @@ public class PlayerMove : MonoBehaviour
                 emptyObject.transform.parent = collision.gameObject.transform;
                 gameObject.transform.parent = emptyObject.transform;
 
-                //gameObject.transform.SetParent(collision.gameObject.transform);                
-               // Debug.Log("On platform.");              
+                          
 
             }
             else if (collision.gameObject.tag == MyTags.GARDA_CAR_TAG)
@@ -237,28 +250,27 @@ public class PlayerMove : MonoBehaviour
                 knockBackPower = 400f;
                 CameraShake();
                 StartCoroutine(PlayerDead());
-                Debug.Log("Hit by car!!!");
+              
 
             }           
             else if (collision.gameObject.tag == MyTags.BOSS_TAG)
             {
-                //knockBackPower = 400f;
-                //CameraShake();
-                //currentHealth -= 10;
-                //StartCoroutine(DamagePlayer(10));
+                
                 Debug.Log("Hit by BOss!!!");
 
             }
             else if (collision.gameObject.tag == MyTags.BOSS_HEAD)
             {
 
-               // StartCoroutine(DamagePlayer(0));
+               
             }
             else if (collision.gameObject.name == "ENDLEVEL")
             {
                 //playerAudioData.PlayOneShot(PintsClip, 0.5f);
                 //StartCoroutine(Restart());
-                SceneManager.LoadScene(2);
+                gm.gameObject.GetComponent<GameMaster>().newLevel = true;
+                print("Game master checkpoint is now: " + gm.gameObject.GetComponent<GameMaster>().newLevel);
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
             }
         }
         else
@@ -274,7 +286,7 @@ public class PlayerMove : MonoBehaviour
         {
 
             gameObject.transform.parent = null;
-            Debug.Log("Not on platform.");
+            //Debug.Log("Not on platform.");
 
         }
     }
